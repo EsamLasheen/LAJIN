@@ -4,13 +4,14 @@ import { Icon } from "astro-icon/components";
 
 <button id="signal-audio-toggle" class="signal-audio-toggle" type="button" aria-label="Toggle signal audio" aria-pressed="false">
     <Icon name="material-symbols:graphic-eq-rounded" class="signal-audio-icon" />
-    <span>Signal</span>
+    <span class="signal-audio-label">Signal</span>
 </button>
 
 <script is:inline>
 (() => {
     const button = document.getElementById("signal-audio-toggle");
     if (!button) return;
+    const label = button.querySelector(".signal-audio-label");
 
     let ctx;
     let master;
@@ -19,7 +20,7 @@ import { Icon } from "astro-icon/components";
     let masterConnected = false;
     let step = 0;
     let autoplayAttempted = false;
-    const notes = [110, 146.83, 164.81, 196, 220, 196, 164.81, 146.83];
+    const notes = [130.81, 174.61, 196, 261.63, 293.66, 261.63, 196, 174.61];
 
     const startNode = (frequency, duration, gainValue, type = "sine") => {
         const oscillator = ctx.createOscillator();
@@ -37,47 +38,76 @@ import { Icon } from "astro-icon/components";
 
     const tick = () => {
         const note = notes[step % notes.length];
-        startNode(note, 0.42, 0.055, "sine");
-        if (step % 4 === 0) startNode(note / 2, 0.9, 0.035, "triangle");
-        if (step % 8 === 6) startNode(note * 2, 0.18, 0.025, "sine");
+        startNode(note, 0.46, 0.12, "triangle");
+        startNode(note * 1.5, 0.26, 0.045, "sine");
+        if (step % 4 === 0) startNode(note / 2, 1.05, 0.08, "sine");
+        if (step % 8 === 6) startNode(note * 2, 0.18, 0.055, "square");
         step += 1;
     };
 
-    const start = async () => {
-        if (playing) return;
+    const markStopped = () => {
+        playing = false;
+        button.classList.remove("is-playing");
+        button.setAttribute("aria-pressed", "false");
+        if (label) label.textContent = button.classList.contains("autoplay-blocked") ? "Click for signal" : "Signal";
+    };
+
+    const ensureAudio = async () => {
         const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) return;
+        if (!AudioContext) {
+            throw new Error("Web Audio is not supported in this browser.");
+        }
+
         ctx = ctx || new AudioContext();
-        if (ctx.state === "suspended") await ctx.resume();
+        if (ctx.state === "suspended") {
+            await ctx.resume();
+        }
+
+        if (ctx.state !== "running") {
+            throw new Error(`AudioContext is ${ctx.state}.`);
+        }
 
         master = master || ctx.createGain();
-        master.gain.setValueAtTime(0.18, ctx.currentTime);
+        master.gain.setValueAtTime(0.32, ctx.currentTime);
         if (!masterConnected) {
             master.connect(ctx.destination);
             masterConnected = true;
         }
+    };
 
+    const start = async () => {
+        if (playing) return;
+        window.clearInterval(timer);
+        await ensureAudio();
+
+        step = 0;
         tick();
         timer = window.setInterval(tick, 520);
         playing = true;
+        button.classList.remove("autoplay-blocked");
         button.classList.add("is-playing");
         button.setAttribute("aria-pressed", "true");
+        if (label) label.textContent = "Signal on";
     };
 
     const stop = () => {
         window.clearInterval(timer);
         timer = undefined;
-        playing = false;
-        button.classList.remove("is-playing");
-        button.setAttribute("aria-pressed", "false");
+        markStopped();
     };
 
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
         if (playing) {
             stop();
             return;
         }
-        start();
+        try {
+            await start();
+        } catch (_error) {
+            button.classList.add("autoplay-blocked");
+            if (label) label.textContent = "Click for signal";
+            markStopped();
+        }
     });
 
     const tryAutoplay = async () => {
@@ -87,19 +117,27 @@ import { Icon } from "astro-icon/components";
             await start();
         } catch (_error) {
             button.classList.add("autoplay-blocked");
+            if (label) label.textContent = "Click for signal";
+            markStopped();
         }
     };
 
-    const startAfterGesture = (event) => {
+    const startAfterGesture = async (event) => {
         if (event.target instanceof Element && event.target.closest("#signal-audio-toggle")) {
             return;
         }
-        if (!playing) {
-            start();
+        try {
+            if (!playing) {
+                await start();
+            }
+            window.removeEventListener("pointerdown", startAfterGesture);
+            window.removeEventListener("keydown", startAfterGesture);
+            window.removeEventListener("touchstart", startAfterGesture);
+        } catch (_error) {
+            button.classList.add("autoplay-blocked");
+            if (label) label.textContent = "Click for signal";
+            markStopped();
         }
-        window.removeEventListener("pointerdown", startAfterGesture);
-        window.removeEventListener("keydown", startAfterGesture);
-        window.removeEventListener("touchstart", startAfterGesture);
     };
 
     window.addEventListener("pointerdown", startAfterGesture, { once: true, passive: true });
