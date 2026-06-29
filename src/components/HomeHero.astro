@@ -1,9 +1,15 @@
 ---
+import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { profileConfig, siteConfig } from "../config";
 import { url } from "../utils/url-utils";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 
+interface Props {
+	latestPost?: CollectionEntry<"posts">;
+}
+
+const { latestPost } = Astro.props;
 const initials = profileConfig.name
 	.split(" ")
 	.filter(Boolean)
@@ -38,19 +44,44 @@ const initials = profileConfig.name
             </div>
         </div>
 
-        <a class="home-hero-avatar" href={url('/about/')} aria-label={`About ${profileConfig.name}`}>
-            <div class="home-hero-avatar-ring">
-                <div class="home-hero-scan" aria-hidden="true"></div>
-                {profileConfig.avatar ? (
-                    <ImageWrapper src={profileConfig.avatar} alt={`Profile image of ${profileConfig.name}`} class="h-full w-full"></ImageWrapper>
-                ) : (
-                    <div class="home-hero-initials">{initials}</div>
-                )}
-            </div>
-            <div class="home-hero-status">
-                <span></span>
-                publishing writeups
-            </div>
-        </a>
+        <div class="home-hero-right">
+            <a class="home-hero-avatar" href={url('/about/')} aria-label={`About ${profileConfig.name}`}>
+                <div class="home-hero-avatar-ring">
+                    <div class="home-hero-scan" aria-hidden="true"></div>
+                    {profileConfig.avatar ? (
+                        <ImageWrapper src={profileConfig.avatar} alt={`Profile image of ${profileConfig.name}`} class="h-full w-full"></ImageWrapper>
+                    ) : (
+                        <div class="home-hero-initials">{initials}</div>
+                    )}
+                </div>
+                <div class="home-hero-status">
+                    <span></span>
+                    publishing writeups
+                </div>
+            </a>
+
+            {latestPost && (
+                <a class="home-hero-spotlight" href={url(`/posts/${latestPost.slug}/`)}>
+                    <div class="home-hero-spotlight-top">
+                        <div class="home-hero-spotlight-label">Latest</div>
+                        <div class="home-hero-spotlight-date">
+                            {new Intl.DateTimeFormat("en", {
+                                month: "short",
+                                day: "numeric",
+                                year: "numeric",
+                            }).format(latestPost.data.published)}
+                        </div>
+                    </div>
+                    <div class="home-hero-spotlight-title">{latestPost.data.title}</div>
+                    <p class="home-hero-spotlight-desc">
+                        {latestPost.data.description || "Open the freshest writeup from the archive."}
+                    </p>
+                    <div class="home-hero-spotlight-footer">
+                        <span>{latestPost.data.category || "Writeup"}</span>
+                        <span>{latestPost.data.tags[0] || "CTF"}</span>
+                    </div>
+                </a>
+            )}
+        </div>
     </div>
 </section>

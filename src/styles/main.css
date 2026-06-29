@@ -188,10 +188,11 @@
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
     html,
     body,
+    body,
     body *,
     .os-scrollbar,
     .os-scrollbar * {
-        cursor: none !important;
+        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%238b0b12'/%3E%3Cpath fill='white' d='M16 5.5l2.15 7.5 8.35-4.15-6.15 6.9 7.15 3.75-8.7-.9L16 27l-2.8-8.4-8.7.9 7.15-3.75-6.15-6.9L13.85 13z'/%3E%3C/svg%3E") 16 16, auto !important;
     }
 }
 
@@ -215,8 +216,8 @@
     }
 
     .brand-cursor-mark {
-        width: 1.45rem;
-        height: 1.45rem;
+        width: 1.7rem;
+        height: 1.7rem;
         background: oklch(0.98 0.01 96);
         clip-path: polygon(50% 0%, 59% 36%, 100% 17%, 68% 50%, 100% 83%, 59% 64%, 50% 100%, 41% 64%, 0% 83%, 32% 50%, 0% 17%, 41% 36%);
         filter:
@@ -226,8 +227,8 @@
     }
 
     .brand-cursor-ring {
-        width: 2.9rem;
-        height: 2.9rem;
+        width: 3.15rem;
+        height: 3.15rem;
         border: 1px solid oklch(0.60 0.17 24 / 0.55);
         border-radius: 999px;
         box-shadow:
@@ -237,8 +238,8 @@
     }
 
     .brand-cursor.is-interactive .brand-cursor-mark {
-        width: 1.8rem;
-        height: 1.8rem;
+        width: 2.35rem;
+        height: 2.35rem;
         filter:
             drop-shadow(0 0 1px oklch(0.18 0.10 24))
             drop-shadow(0 0 14px oklch(1 0 0 / 0.72));
@@ -251,15 +252,15 @@
     }
 
     .brand-cursor.is-pressed .brand-cursor-ring {
-        width: 2rem;
-        height: 2rem;
+        width: 2.25rem;
+        height: 2.25rem;
         opacity: 0.55;
     }
 }
 
 .signal-audio-toggle {
     position: fixed;
-    left: 1rem;
+    right: 1rem;
     bottom: 1rem;
     z-index: 80;
     display: inline-flex;
@@ -290,6 +291,10 @@
 
 .signal-audio-toggle.autoplay-blocked:not(.is-playing) {
     animation: signal-waiting 1.8s ease-in-out infinite;
+}
+
+.signal-audio-toggle.autoplay-blocked .signal-audio-icon {
+    animation: signal-bars 600ms ease-in-out infinite;
 }
 
 .signal-audio-icon {
@@ -395,11 +400,23 @@
 .home-hero-grid {
     position: relative;
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1.1fr) minmax(17rem, 22rem);
     align-items: center;
-    gap: 1.5rem;
+    gap: 1.15rem;
     min-height: 16rem;
     padding: 2rem;
+}
+
+.home-hero-copy {
+    position: relative;
+    z-index: 1;
+}
+
+.home-hero-right {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
 }
 
 .home-hero-kicker {
@@ -465,12 +482,13 @@
     flex-direction: column;
     align-items: center;
     gap: 0.85rem;
-    min-width: 12rem;
+    min-width: 0;
     color: inherit;
 }
 
 .home-hero-avatar-ring {
-    width: 10.5rem;
+    width: 100%;
+    max-width: 12rem;
     aspect-ratio: 1;
     padding: 0.32rem;
     border-radius: 1.1rem;
@@ -597,6 +615,31 @@
     isolation: isolate;
 }
 
+.post-card-topline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+}
+
+.post-card-category {
+    min-height: 1.75rem;
+    padding: 0 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    color: var(--primary);
+    background: oklch(1 0 0 / 0.5);
+    font-size: 0.74rem;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+:root.dark .post-card-category {
+    background: oklch(0.18 0.035 24 / 0.92);
+}
+
 .post-card::before {
     content: "";
     position: absolute;
@@ -625,6 +668,36 @@
     font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
+}
+
+.post-card-stats {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: oklch(0.38 0.03 24);
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.post-card-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.post-card-stat span {
+    color: var(--primary);
+    font-weight: 900;
+}
+
+.post-card-stat-divider {
+    width: 1px;
+    height: 0.9rem;
+    background: var(--card-border);
+}
+
+:root.dark .post-card-stats {
+    color: oklch(0.86 0.02 24);
 }
 
 .post-card-cover {
@@ -701,6 +774,79 @@
     transform: scale(1.06);
 }
 
+.home-hero-spotlight {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem 1rem 1.1rem;
+    border-radius: 1rem;
+    border: 1px solid oklch(1 0 0 / 0.22);
+    background:
+        linear-gradient(160deg, oklch(1 0 0 / 0.16), transparent 34%),
+        linear-gradient(180deg, oklch(0.18 0.08 24 / 0.96), oklch(0.25 0.10 24 / 0.96));
+    color: oklch(0.98 0.01 96);
+    overflow: hidden;
+}
+
+.home-hero-spotlight::before {
+    content: "";
+    position: absolute;
+    inset: auto -10% 0 -10%;
+    height: 42%;
+    background: radial-gradient(circle at 50% 0%, oklch(1 0 0 / 0.18), transparent 65%);
+    pointer-events: none;
+}
+
+.home-hero-spotlight-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.home-hero-spotlight-label {
+    min-height: 1.55rem;
+    padding: 0 0.55rem;
+    border-radius: 999px;
+    background: oklch(1 0 0 / 0.16);
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.home-hero-spotlight-date {
+    font-size: 0.76rem;
+    color: oklch(0.97 0.02 36 / 0.82);
+}
+
+.home-hero-spotlight-title {
+    font-size: 1.25rem;
+    line-height: 1.1;
+    font-weight: 900;
+}
+
+.home-hero-spotlight-desc {
+    margin: 0;
+    color: oklch(0.96 0.02 36 / 0.82);
+    font-size: 0.93rem;
+}
+
+.home-hero-spotlight-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.home-hero-spotlight-footer span {
+    min-height: 1.45rem;
+    padding: 0 0.48rem;
+    border-radius: 999px;
+    background: oklch(1 0 0 / 0.16);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
 #sidebar .card-base,
 #content-wrapper > .card-base,
 #content-wrapper > div > .card-base {
@@ -725,6 +871,10 @@
         min-height: auto;
     }
 
+    .home-hero-right {
+        gap: 0.85rem;
+    }
+
     .home-hero-avatar {
         align-items: flex-start;
         min-width: 0;
@@ -741,5 +891,9 @@
 
     .home-hero-initials {
         font-size: 2.4rem;
+    }
+
+    .home-hero-spotlight {
+        padding: 0.9rem;
     }
 }
