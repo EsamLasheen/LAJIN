@@ -1,0 +1,56 @@
+---
+import { Icon } from "astro-icon/components";
+import { profileConfig, siteConfig } from "../config";
+import { url } from "../utils/url-utils";
+import ImageWrapper from "./misc/ImageWrapper.astro";
+
+const initials = profileConfig.name
+	.split(" ")
+	.filter(Boolean)
+	.slice(0, 2)
+	.map((part) => part[0]?.toUpperCase())
+	.join("");
+---
+
+<section class="home-hero card-base onload-animation mb-4 overflow-hidden">
+    <div class="home-hero-traces" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="home-hero-grid">
+        <div class="home-hero-copy">
+            <div class="home-hero-kicker">
+                <Icon name="material-symbols:my-location-rounded" class="text-[1.15rem]" />
+                <span>LAJIN field notes</span>
+            </div>
+            <h1>{siteConfig.title}</h1>
+            <p>{profileConfig.bio}</p>
+            <div class="home-hero-actions">
+                <a class="btn-regular home-hero-action" href={url('/archive/')}>
+                    <Icon name="material-symbols:folder-open-outline-rounded" class="text-[1.25rem]" />
+                    Archive
+                </a>
+                <a class="btn-plain home-hero-action secondary" href={url('/about/')}>
+                    <Icon name="fa6-regular:address-card" class="text-[1.05rem]" />
+                    About
+                </a>
+            </div>
+        </div>
+
+        <a class="home-hero-avatar" href={url('/about/')} aria-label={`About ${profileConfig.name}`}>
+            <div class="home-hero-avatar-ring">
+                <div class="home-hero-scan" aria-hidden="true"></div>
+                {profileConfig.avatar ? (
+                    <ImageWrapper src={profileConfig.avatar} alt={`Profile image of ${profileConfig.name}`} class="h-full w-full"></ImageWrapper>
+                ) : (
+                    <div class="home-hero-initials">{initials}</div>
+                )}
+            </div>
+            <div class="home-hero-status">
+                <span></span>
+                publishing writeups
+            </div>
+        </a>
+    </div>
+</section>

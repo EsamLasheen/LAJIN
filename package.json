@@ -1,7 +1,8 @@
 {
-  "name": "fuwari",
+  "name": "lajin-blog",
   "type": "module",
   "version": "0.0.1",
+  "description": "Personal CTF walkthrough blog by Esam Lasheen.",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

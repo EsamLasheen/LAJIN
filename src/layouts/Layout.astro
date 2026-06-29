@@ -3,7 +3,9 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
+import BrandCursor from "@components/BrandCursor.astro";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
+import SignalAudio from "@components/SignalAudio.astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
@@ -148,10 +150,12 @@ const bannerOffset =
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
 	</head>
-	<body class=" min-h-screen transition " class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
+	<body class="min-h-screen transition site-shell" class:list={[{"lg:is-home": isHomePage, "enable-banner": enableBanner}]}
 		  data-overlayscrollbars-initialize
 	>
 		<ConfigCarrier></ConfigCarrier>
+		<BrandCursor></BrandCursor>
+		<SignalAudio></SignalAudio>
 		<slot />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->

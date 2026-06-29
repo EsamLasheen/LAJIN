@@ -1,0 +1,52 @@
+<div class="brand-cursor" aria-hidden="true">
+    <div class="brand-cursor-mark"></div>
+    <div class="brand-cursor-ring"></div>
+</div>
+
+<script is:inline>
+(() => {
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!finePointer || reducedMotion) return;
+
+    const cursor = document.querySelector(".brand-cursor");
+    const mark = document.querySelector(".brand-cursor-mark");
+    const ring = document.querySelector(".brand-cursor-ring");
+    if (!cursor || !mark || !ring) return;
+
+    let x = window.innerWidth / 2;
+    let y = window.innerHeight / 2;
+    let ringX = x;
+    let ringY = y;
+
+    cursor.classList.add("is-ready");
+
+    const setInteractive = (target) => {
+        const active = target instanceof Element && !!target.closest("a, button, input, textarea, select, summary, [role='button']");
+        cursor.classList.toggle("is-interactive", active);
+    };
+
+    window.addEventListener("pointermove", (event) => {
+        x = event.clientX;
+        y = event.clientY;
+        mark.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+        setInteractive(event.target);
+    }, { passive: true });
+
+    window.addEventListener("pointerdown", () => {
+        cursor.classList.add("is-pressed");
+    }, { passive: true });
+
+    window.addEventListener("pointerup", () => {
+        cursor.classList.remove("is-pressed");
+    }, { passive: true });
+
+    const frame = () => {
+        ringX += (x - ringX) * 0.18;
+        ringY += (y - ringY) * 0.18;
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+        requestAnimationFrame(frame);
+    };
+    frame();
+})();
+</script>

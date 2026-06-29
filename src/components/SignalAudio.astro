@@ -1,0 +1,81 @@
+---
+import { Icon } from "astro-icon/components";
+---
+
+<button id="signal-audio-toggle" class="signal-audio-toggle" type="button" aria-label="Toggle signal audio" aria-pressed="false">
+    <Icon name="material-symbols:graphic-eq-rounded" class="signal-audio-icon" />
+    <span>Signal</span>
+</button>
+
+<script is:inline>
+(() => {
+    const button = document.getElementById("signal-audio-toggle");
+    if (!button) return;
+
+    let ctx;
+    let master;
+    let timer;
+    let playing = false;
+    let masterConnected = false;
+    let step = 0;
+    const notes = [110, 146.83, 164.81, 196, 220, 196, 164.81, 146.83];
+
+    const startNode = (frequency, duration, gainValue, type = "sine") => {
+        const oscillator = ctx.createOscillator();
+        const gain = ctx.createGain();
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(gainValue, ctx.currentTime + 0.025);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+        oscillator.connect(gain);
+        gain.connect(master);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + duration + 0.03);
+    };
+
+    const tick = () => {
+        const note = notes[step % notes.length];
+        startNode(note, 0.42, 0.055, "sine");
+        if (step % 4 === 0) startNode(note / 2, 0.9, 0.035, "triangle");
+        if (step % 8 === 6) startNode(note * 2, 0.18, 0.025, "sine");
+        step += 1;
+    };
+
+    const start = async () => {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        ctx = ctx || new AudioContext();
+        if (ctx.state === "suspended") await ctx.resume();
+
+        master = master || ctx.createGain();
+        master.gain.setValueAtTime(0.18, ctx.currentTime);
+        if (!masterConnected) {
+            master.connect(ctx.destination);
+            masterConnected = true;
+        }
+
+        tick();
+        timer = window.setInterval(tick, 520);
+        playing = true;
+        button.classList.add("is-playing");
+        button.setAttribute("aria-pressed", "true");
+    };
+
+    const stop = () => {
+        window.clearInterval(timer);
+        timer = undefined;
+        playing = false;
+        button.classList.remove("is-playing");
+        button.setAttribute("aria-pressed", "false");
+    };
+
+    button.addEventListener("click", () => {
+        if (playing) {
+            stop();
+            return;
+        }
+        start();
+    });
+})();
+</script>
