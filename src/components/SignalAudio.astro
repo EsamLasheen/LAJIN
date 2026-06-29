@@ -18,6 +18,7 @@ import { Icon } from "astro-icon/components";
     let playing = false;
     let masterConnected = false;
     let step = 0;
+    let autoplayAttempted = false;
     const notes = [110, 146.83, 164.81, 196, 220, 196, 164.81, 146.83];
 
     const startNode = (frequency, duration, gainValue, type = "sine") => {
@@ -43,6 +44,7 @@ import { Icon } from "astro-icon/components";
     };
 
     const start = async () => {
+        if (playing) return;
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         if (!AudioContext) return;
         ctx = ctx || new AudioContext();
@@ -77,5 +79,37 @@ import { Icon } from "astro-icon/components";
         }
         start();
     });
+
+    const tryAutoplay = async () => {
+        if (autoplayAttempted || playing) return;
+        autoplayAttempted = true;
+        try {
+            await start();
+        } catch (_error) {
+            button.classList.add("autoplay-blocked");
+        }
+    };
+
+    const startAfterGesture = (event) => {
+        if (event.target instanceof Element && event.target.closest("#signal-audio-toggle")) {
+            return;
+        }
+        if (!playing) {
+            start();
+        }
+        window.removeEventListener("pointerdown", startAfterGesture);
+        window.removeEventListener("keydown", startAfterGesture);
+        window.removeEventListener("touchstart", startAfterGesture);
+    };
+
+    window.addEventListener("pointerdown", startAfterGesture, { once: true, passive: true });
+    window.addEventListener("keydown", startAfterGesture, { once: true });
+    window.addEventListener("touchstart", startAfterGesture, { once: true, passive: true });
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", tryAutoplay, { once: true });
+    } else {
+        tryAutoplay();
+    }
 })();
 </script>

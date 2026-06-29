@@ -20,6 +20,8 @@
     let ringY = y;
 
     cursor.classList.add("is-ready");
+    mark.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
+    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
 
     const setInteractive = (target) => {
         const active = target instanceof Element && !!target.closest("a, button, input, textarea, select, summary, [role='button']");

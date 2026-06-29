@@ -186,14 +186,12 @@
 }
 
 @media (pointer: fine) and (prefers-reduced-motion: no-preference) {
+    html,
     body,
-    body a,
-    body button,
-    body input,
-    body textarea,
-    body select,
-    body summary {
-        cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='16' fill='%238b0b12'/%3E%3Cpath fill='white' d='M16 5.5l2.15 7.5 8.35-4.15-6.15 6.9 7.15 3.75-8.7-.9L16 27l-2.8-8.4-8.7.9 7.15-3.75-6.15-6.9L13.85 13z'/%3E%3C/svg%3E") 16 16, auto;
+    body *,
+    .os-scrollbar,
+    .os-scrollbar * {
+        cursor: none !important;
     }
 }
 
@@ -217,18 +215,19 @@
     }
 
     .brand-cursor-mark {
-        width: 1.05rem;
-        height: 1.05rem;
+        width: 1.45rem;
+        height: 1.45rem;
         background: oklch(0.98 0.01 96);
         clip-path: polygon(50% 0%, 59% 36%, 100% 17%, 68% 50%, 100% 83%, 59% 64%, 50% 100%, 41% 64%, 0% 83%, 32% 50%, 0% 17%, 41% 36%);
-        filter: drop-shadow(0 0 7px oklch(1 0 0 / 0.55));
-        mix-blend-mode: difference;
+        filter:
+            drop-shadow(0 0 1px oklch(0.18 0.10 24))
+            drop-shadow(0 0 10px oklch(0.60 0.17 24 / 0.65));
         transition: width 160ms ease, height 160ms ease, filter 160ms ease;
     }
 
     .brand-cursor-ring {
-        width: 2.6rem;
-        height: 2.6rem;
+        width: 2.9rem;
+        height: 2.9rem;
         border: 1px solid oklch(0.60 0.17 24 / 0.55);
         border-radius: 999px;
         box-shadow:
@@ -238,9 +237,11 @@
     }
 
     .brand-cursor.is-interactive .brand-cursor-mark {
-        width: 1.35rem;
-        height: 1.35rem;
-        filter: drop-shadow(0 0 12px oklch(1 0 0 / 0.72));
+        width: 1.8rem;
+        height: 1.8rem;
+        filter:
+            drop-shadow(0 0 1px oklch(0.18 0.10 24))
+            drop-shadow(0 0 14px oklch(1 0 0 / 0.72));
     }
 
     .brand-cursor.is-interactive .brand-cursor-ring {
@@ -287,6 +288,10 @@
     background: var(--brand-red);
 }
 
+.signal-audio-toggle.autoplay-blocked:not(.is-playing) {
+    animation: signal-waiting 1.8s ease-in-out infinite;
+}
+
 .signal-audio-icon {
     font-size: 1.25rem;
 }
@@ -301,6 +306,17 @@
     }
     50% {
         transform: scaleY(1.15);
+    }
+}
+
+@keyframes signal-waiting {
+    0%, 100% {
+        box-shadow: var(--card-shadow);
+    }
+    50% {
+        box-shadow:
+            var(--card-shadow),
+            0 0 0 5px oklch(0.58 0.18 24 / 0.18);
     }
 }
 
