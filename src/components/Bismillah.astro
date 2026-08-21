@@ -1,0 +1,42 @@
+---
+interface Props {
+	class?: string;
+}
+const className = Astro.props.class;
+---
+
+<div class:list={["bismillah", className]} dir="rtl" lang="ar" aria-label="Bismillah">
+    <span class="bismillah-ornament">✦</span>
+    <span class="bismillah-text">بِسْمِ اللَّهِ الرَّحْمَـٰنِ الرَّحِيمِ</span>
+    <span class="bismillah-ornament">✦</span>
+</div>
+
+<style>
+    .bismillah {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.1rem;
+        margin: 0.25rem auto 2rem;
+        max-width: 34rem;
+    }
+
+    .bismillah-text {
+        font-family: "Amiri", "Scheherazade New", "Noto Naskh Arabic", "Traditional Arabic", serif;
+        font-size: 1.75rem;
+        line-height: 2.1;
+        font-weight: 700;
+        text-align: center;
+        color: oklch(0.55 0.11 var(--hue));
+    }
+
+    :global(:root.dark) .bismillah-text {
+        color: oklch(0.78 0.12 var(--hue));
+        text-shadow: 0 0 24px oklch(0.65 0.12 var(--hue) / 0.35);
+    }
+
+    .bismillah-ornament {
+        font-size: 0.8rem;
+        color: oklch(0.6 0.08 var(--hue) / 0.55);
+    }
+</style>

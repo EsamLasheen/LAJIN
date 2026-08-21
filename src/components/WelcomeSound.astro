@@ -368,7 +368,13 @@ if (audio && gate && form && input && output && skipBtn) {
 
 	syncToggle();
 
-	if (!isMuted()) {
+	// Only first-time visitors landing on the home page get the gate —
+	// deep links straight to posts/archive skip it.
+	const baseUrl = import.meta.env.BASE_URL;
+	const path = window.location.pathname.replace(/index\.html$/, "");
+	const isHome = path === baseUrl || path === `${baseUrl}/`;
+
+	if (!isMuted() && isHome) {
 		gate.classList.remove("welcome-gate-closed");
 		gate.setAttribute("aria-hidden", "false");
 		document.documentElement.style.overflow = "hidden";

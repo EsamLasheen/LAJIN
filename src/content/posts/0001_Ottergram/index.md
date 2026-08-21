@@ -1,10 +1,11 @@
----
+﻿---
 title: Ottergram - Bugforge CTF Walkthrough
 published: 2026-06-18
 description: My walkthrough of the Ottergram Web CTF challenge on Bugforge, showing how broken access control can expose an administrative post deletion endpoint.
 image: ./after-flag-post.png
 tags: [CTF, Web Security, Broken Access Control, Writeup]
 category: CTF
+bismillah: true
 draft: false
 ---
 

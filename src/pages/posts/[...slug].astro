@@ -1,12 +1,14 @@
 ---
 import path from "node:path";
+import Bismillah from "@components/Bismillah.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
 import { getSortedPosts } from "@utils/content-utils";
-import { getDir, getPostUrlBySlug } from "@utils/url-utils";
+import { getDir, getPostUrlBySlug, url } from "@utils/url-utils";
+import type { ImageMetadata } from "astro";
 import { Icon } from "astro-icon/components";
 import { licenseConfig } from "src/config";
 import ImageWrapper from "../../components/misc/ImageWrapper.astro";
@@ -27,12 +29,34 @@ const { Content, headings } = await entry.render();
 
 const { remarkPluginFrontmatter } = await entry.render();
 
+// Resolve the cover image to its final public URL for social preview cards.
+const imageFiles = import.meta.glob<ImageMetadata>(
+	"../../content/posts/**/*.{jpeg,jpg,png,webp,gif,avif}",
+	{ import: "default" },
+);
+let ogImage = "";
+if (entry.data.image) {
+	const key = path
+		.normalize(
+			path.join("../../content/posts/", getDir(entry.id), entry.data.image),
+		)
+		.replace(/\\/g, "/");
+	const fileMeta = imageFiles[key];
+	if (fileMeta) {
+		const meta = await fileMeta();
+		ogImage = new URL(meta.src, Astro.site).href;
+	} else {
+		ogImage = new URL(url(entry.data.image), Astro.site).href;
+	}
+}
+
 const jsonLd = {
 	"@context": "https://schema.org",
 	"@type": "BlogPosting",
 	headline: entry.data.title,
 	description: entry.data.description || entry.data.title,
 	keywords: entry.data.tags,
+	image: ogImage || undefined,
 	author: {
 		"@type": "Person",
 		name: profileConfig.name,
@@ -42,10 +66,9 @@ const jsonLd = {
 	inLanguage: entry.data.lang
 		? entry.data.lang.replace("_", "-")
 		: siteConfig.lang.replace("_", "-"),
-	// TODO include cover image here
 };
 ---
-<MainGridLayout banner={entry.data.image} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
+<MainGridLayout banner={entry.data.image} image={ogImage} title={entry.data.title} description={entry.data.description} lang={entry.data.lang} setOGTypeArticle={true} headings={headings}>
     <script is:inline slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd)}></script>
     <div class="flex w-full rounded-[var(--radius-large)] overflow-hidden relative mb-4">
         <div id="post-container" class:list={["card-base z-10 px-6 md:px-9 pt-6 pb-4 relative w-full ",
@@ -101,6 +124,8 @@ const jsonLd = {
                 <ImageWrapper id="post-cover" src={entry.data.image} basePath={path.join("content/posts/", getDir(entry.id))} class="mb-8 rounded-xl banner-container onload-animation"/>
             }
 
+
+            {entry.data.bismillah && <Bismillah class="onload-animation" />}
 
             <Markdown class="mb-6 markdown-content onload-animation">
                 <Content />
