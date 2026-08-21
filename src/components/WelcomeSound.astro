@@ -1,12 +1,12 @@
 ---
 import { url } from "../utils/url-utils";
 
-const audioUrl = url("/audio/paul-atreides.mp3");
+const audioUrl = url("/audio/paul-atreides.m4a");
 ---
 
 <div id="welcome-gate" class="welcome-gate welcome-gate-closed" aria-hidden="true">
-    <canvas id="welcome-gate-rain" class="welcome-gate-rain" aria-hidden="true"></canvas>
-    <div class="welcome-gate-scanlines" aria-hidden="true"></div>
+    <div class="welcome-gate-glow" aria-hidden="true"></div>
+    <div class="welcome-gate-grid" aria-hidden="true"></div>
 
     <div class="welcome-gate-card">
         <div class="welcome-gate-glitch" data-text="LAJIN">LAJIN</div>
@@ -51,7 +51,9 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        background: #050805;
+        background:
+            radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.18 0.04 var(--hue) / 0.55), transparent 70%),
+            #0a0a0d;
         transition: opacity 0.5s ease;
     }
 
@@ -64,40 +66,59 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         pointer-events: none;
     }
 
-    .welcome-gate-rain {
+    .welcome-gate-glow {
         position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.3;
+        left: 50%;
+        top: 42%;
+        width: min(46rem, 90vw);
+        height: min(46rem, 90vw);
+        transform: translate(-50%, -50%);
+        background: radial-gradient(
+            circle,
+            oklch(0.45 0.13 var(--hue) / 0.28),
+            transparent 62%
+        );
+        filter: blur(10px);
+        animation: gate-breathe 6s ease-in-out infinite;
+        pointer-events: none;
     }
 
-    .welcome-gate-scanlines {
+    @keyframes gate-breathe {
+        0%, 100% { opacity: 0.75; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.06); }
+    }
+
+    .welcome-gate-grid {
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background: repeating-linear-gradient(
-            to bottom,
-            transparent 0,
-            transparent 2px,
-            rgba(0, 0, 0, 0.22) 2px,
-            rgba(0, 0, 0, 0.22) 4px
-        );
+        background:
+            repeating-linear-gradient(
+                to right,
+                oklch(0.5 0.05 var(--hue) / 0.055) 0 1px,
+                transparent 1px 56px
+            ),
+            repeating-linear-gradient(
+                to bottom,
+                oklch(0.5 0.05 var(--hue) / 0.055) 0 1px,
+                transparent 1px 56px
+            );
+        mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 30%, transparent 100%);
     }
 
     .welcome-gate-card {
         position: relative;
         z-index: 1;
         width: min(32rem, 100%);
-        border-radius: 0.9rem;
+        border-radius: 1rem;
         padding: 1.8rem 1.6rem 1.1rem;
-        background: oklch(0.13 0.02 var(--hue) / 0.92);
-        border: 1px solid oklch(0.55 0.12 var(--hue) / 0.45);
+        background: oklch(0.14 0.02 var(--hue) / 0.88);
+        border: 1px solid oklch(0.6 0.1 var(--hue) / 0.35);
         box-shadow:
-            0 24px 80px oklch(0 0 0 / 0.6),
-            0 0 42px oklch(0.7 0.16 var(--hue) / 0.22);
+            0 24px 80px oklch(0 0 0 / 0.55),
+            inset 0 1px 0 oklch(0.85 0.05 var(--hue) / 0.12);
         font-family: "JetBrains Mono Variable", ui-monospace, monospace;
-        backdrop-filter: blur(4px);
+        backdrop-filter: blur(14px);
     }
 
     .welcome-gate-glitch {
@@ -106,8 +127,8 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         font-weight: 800;
         letter-spacing: 0.38em;
         text-align: center;
-        color: oklch(0.85 0.17 var(--hue));
-        text-shadow: 0 0 18px oklch(0.75 0.18 var(--hue) / 0.65);
+        color: oklch(0.87 0.15 var(--hue));
+        text-shadow: 0 0 22px oklch(0.72 0.16 var(--hue) / 0.55);
         margin-right: -0.38em;
     }
 
@@ -122,26 +143,26 @@ const audioUrl = url("/audio/paul-atreides.mp3");
 
     .welcome-gate-glitch::before {
         color: oklch(0.85 0.19 145);
-        animation: gate-glitch-a 3.2s infinite steps(1);
+        animation: gate-glitch-a 4s infinite steps(1);
     }
 
     .welcome-gate-glitch::after {
         color: oklch(0.82 0.18 220);
-        animation: gate-glitch-b 3.2s infinite steps(1);
+        animation: gate-glitch-b 4s infinite steps(1);
     }
 
     @keyframes gate-glitch-a {
-        0%, 90%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
-        91% { opacity: 0.9; transform: translate(-4px, 2px); clip-path: inset(10% 0 62% 0); }
-        93% { opacity: 0.9; transform: translate(4px, -2px); clip-path: inset(58% 0 12% 0); }
-        95% { opacity: 0; }
+        0%, 91%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
+        92% { opacity: 0.9; transform: translate(-3px, 2px); clip-path: inset(10% 0 62% 0); }
+        94% { opacity: 0.9; transform: translate(3px, -2px); clip-path: inset(58% 0 12% 0); }
+        96% { opacity: 0; }
     }
 
     @keyframes gate-glitch-b {
-        0%, 89%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
-        90% { opacity: 0.85; transform: translate(5px, -1px); clip-path: inset(40% 0 34% 0); }
-        92% { opacity: 0.85; transform: translate(-5px, 2px); clip-path: inset(6% 0 74% 0); }
-        94% { opacity: 0; }
+        0%, 90%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
+        91% { opacity: 0.85; transform: translate(4px, -1px); clip-path: inset(40% 0 34% 0); }
+        93% { opacity: 0.85; transform: translate(-4px, 2px); clip-path: inset(6% 0 74% 0); }
+        95% { opacity: 0; }
     }
 
     .welcome-gate-sub {
@@ -157,8 +178,8 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         margin-top: 1.25rem;
         padding: 0.75rem 0.9rem;
         border-radius: 0.55rem;
-        border: 1px solid oklch(0.4 0.04 var(--hue) / 0.5);
-        background: oklch(0.1 0.01 var(--hue) / 0.8);
+        border: 1px solid oklch(0.42 0.04 var(--hue) / 0.45);
+        background: oklch(0.1 0.01 var(--hue) / 0.75);
         font-size: 0.76rem;
         line-height: 1.7;
         color: oklch(0.78 0.03 var(--hue));
@@ -195,9 +216,17 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         gap: 0.5rem;
         padding: 0.7rem 0.85rem;
         border-radius: 0.6rem;
-        border: 1px solid oklch(0.55 0.08 var(--hue) / 0.5);
+        border: 1px solid oklch(0.55 0.08 var(--hue) / 0.45);
         background: oklch(0.09 0.01 var(--hue));
-        box-shadow: inset 0 0 18px oklch(0 0 0 / 0.45);
+        box-shadow: inset 0 0 18px oklch(0 0 0 / 0.4);
+        transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    #welcome-gate-form:focus-within {
+        border-color: oklch(0.68 0.14 var(--hue) / 0.7);
+        box-shadow:
+            inset 0 0 18px oklch(0 0 0 / 0.4),
+            0 0 20px oklch(0.7 0.15 var(--hue) / 0.25);
     }
 
     .welcome-gate-prompt {
@@ -255,7 +284,7 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         display: inline-block;
         padding: 0.05rem 0.4rem;
         border-radius: 0.3rem;
-        border: 1px solid oklch(0.6 0.06 var(--hue) / 0.55);
+        border: 1px solid oklch(0.6 0.06 var(--hue) / 0.5);
         border-bottom-width: 2px;
         background: oklch(0.22 0.02 var(--hue));
         font-family: inherit;
@@ -289,14 +318,15 @@ const audioUrl = url("/audio/paul-atreides.mp3");
             animation: none;
             opacity: 1;
         }
+
+        .welcome-gate-glow {
+            animation: none;
+        }
     }
 </style>
 
 <script>
-import { startMatrixRain } from "../utils/matrix-rain";
-
 const gate = document.getElementById("welcome-gate");
-const rainCanvas = document.getElementById("welcome-gate-rain") as HTMLCanvasElement | null;
 const form = document.getElementById("welcome-gate-form") as HTMLFormElement | null;
 const input = document.getElementById("welcome-gate-input") as HTMLInputElement | null;
 const output = document.getElementById("welcome-gate-output");
@@ -318,34 +348,6 @@ function playClip() {
 	if (!audio || isMuted()) return;
 	audio.volume = VOLUME;
 	audio.play().catch(() => {});
-}
-
-let stopRain: (() => void) | null = null;
-
-function startRain() {
-	if (
-		!rainCanvas ||
-		stopRain ||
-		window.matchMedia("(prefers-reduced-motion: reduce)").matches
-	) {
-		return;
-	}
-	const hue = getComputedStyle(document.documentElement)
-		.getPropertyValue("--hue")
-		.trim() || "24";
-	stopRain = startMatrixRain(rainCanvas, {
-		fontSize: 15,
-		color: `oklch(0.72 0.14 ${hue})`,
-		trailAlpha: 0.1,
-		speed: 0.8,
-	});
-}
-
-function stopRains() {
-	if (stopRain) {
-		stopRain();
-		stopRain = null;
-	}
 }
 
 if (audio && gate && form && input && output && skipBtn) {
@@ -370,7 +372,6 @@ if (audio && gate && form && input && output && skipBtn) {
 		gate.classList.remove("welcome-gate-closed");
 		gate.setAttribute("aria-hidden", "false");
 		document.documentElement.style.overflow = "hidden";
-		startRain();
 		input.focus();
 
 		form.addEventListener("submit", (event) => {
@@ -386,7 +387,6 @@ if (audio && gate && form && input && output && skipBtn) {
 					window.setTimeout(() => {
 						gate.classList.add("welcome-gate-closed");
 						gate.classList.remove("welcome-gate-fading");
-						stopRains();
 					}, 500);
 					document.documentElement.style.overflow = "";
 				}, 650);
@@ -405,7 +405,6 @@ if (audio && gate && form && input && output && skipBtn) {
 			window.setTimeout(() => {
 				gate.classList.add("welcome-gate-closed");
 				gate.classList.remove("welcome-gate-fading");
-				stopRains();
 			}, 500);
 			document.documentElement.style.overflow = "";
 		};
