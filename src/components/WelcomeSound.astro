@@ -1,0 +1,250 @@
+---
+import { url } from "../utils/url-utils";
+
+const audioUrl = url("/audio/paul-atreides.mp3");
+---
+
+<div id="welcome-gate" class="welcome-gate welcome-gate-closed" aria-hidden="true">
+    <div class="welcome-gate-card">
+        <div class="welcome-gate-title">LAJIN</div>
+        <div class="welcome-gate-sub">restricted area — identify yourself</div>
+        <form id="welcome-gate-form" autocomplete="off">
+            <span class="welcome-gate-prompt">➜</span>
+            <span class="welcome-gate-host">guest@lajin:~$</span>
+            <input
+                id="welcome-gate-input"
+                type="text"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Identify yourself — type whoami"
+                placeholder="…"
+            />
+        </form>
+        <div id="welcome-gate-output" aria-live="polite"></div>
+        <div class="welcome-gate-hint">type <kbd>whoami</kbd> and press Enter</div>
+        <button type="button" id="welcome-gate-skip">[ skip ]</button>
+    </div>
+</div>
+
+<audio id="welcome-sound-audio" src={audioUrl} preload="auto"></audio>
+
+<style>
+    .welcome-gate {
+        position: fixed;
+        inset: 0;
+        z-index: 95;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: var(--page-bg);
+        transition: opacity 0.45s ease;
+    }
+
+    .welcome-gate.welcome-gate-closed {
+        display: none;
+    }
+
+    .welcome-gate.welcome-gate-fading {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .welcome-gate-card {
+        width: min(30rem, 100%);
+        border-radius: 0.9rem;
+        padding: 1.6rem 1.5rem 1.2rem;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        box-shadow: 0 24px 80px oklch(0 0 0 / 0.35);
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+    }
+
+    .welcome-gate-title {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: 0.35em;
+        color: oklch(0.75 0.14 var(--hue));
+        text-align: center;
+    }
+
+    .welcome-gate-sub {
+        margin-top: 0.4rem;
+        text-align: center;
+        font-size: 0.72rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: oklch(0.55 0.02 var(--hue));
+    }
+
+    #welcome-gate-form {
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.65rem 0.8rem;
+        border-radius: 0.6rem;
+        border: 1px solid oklch(0.55 0.05 var(--hue) / 0.4);
+        background: oklch(0.16 0.015 var(--hue));
+    }
+
+    .welcome-gate-prompt {
+        color: oklch(0.78 0.16 145);
+        font-weight: 700;
+    }
+
+    .welcome-gate-host {
+        color: oklch(0.85 0.03 var(--hue));
+        white-space: nowrap;
+    }
+
+    #welcome-gate-input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: oklch(0.92 0.02 var(--hue));
+        font-family: inherit;
+        font-size: 1rem;
+        caret-color: oklch(0.78 0.16 145);
+    }
+
+    #welcome-gate-output {
+        min-height: 1.3rem;
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+        color: #ff6b6b;
+        white-space: pre-wrap;
+    }
+
+    .welcome-gate-hint {
+        margin-top: 0.9rem;
+        text-align: center;
+        font-size: 0.78rem;
+        color: oklch(0.55 0.02 var(--hue));
+    }
+
+    .welcome-gate-hint kbd {
+        display: inline-block;
+        padding: 0.05rem 0.4rem;
+        border-radius: 0.3rem;
+        border: 1px solid oklch(0.6 0.04 var(--hue) / 0.5);
+        border-bottom-width: 2px;
+        background: oklch(0.95 0.01 var(--hue));
+        font-family: inherit;
+        font-size: 0.74rem;
+        font-weight: 700;
+    }
+
+    :global(:root.dark) .welcome-gate-hint kbd {
+        background: oklch(0.28 0.02 var(--hue));
+    }
+
+    #welcome-gate-skip {
+        display: block;
+        margin: 1rem auto 0;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.74rem;
+        color: oklch(0.55 0.02 var(--hue));
+    }
+
+    #welcome-gate-skip:hover {
+        color: oklch(0.75 0.14 var(--hue));
+    }
+</style>
+
+<script>
+const gate = document.getElementById("welcome-gate");
+const form = document.getElementById("welcome-gate-form") as HTMLFormElement | null;
+const input = document.getElementById("welcome-gate-input") as HTMLInputElement | null;
+const output = document.getElementById("welcome-gate-output");
+const skipBtn = document.getElementById("welcome-gate-skip");
+const audio = document.getElementById("welcome-sound-audio") as HTMLAudioElement | null;
+const toggle = document.getElementById("welcome-sound-toggle");
+const MUTED_KEY = "welcome-sound-muted";
+const VOLUME = 0.4;
+
+function isMuted(): boolean {
+	return localStorage.getItem(MUTED_KEY) === "1";
+}
+
+function syncToggle() {
+	toggle?.classList.toggle("is-muted", isMuted());
+}
+
+function playClip() {
+	if (!audio || isMuted()) return;
+	audio.volume = VOLUME;
+	audio.play().catch(() => {});
+}
+
+function closeGate(playSound: boolean) {
+	if (!gate || gate.classList.contains("welcome-gate-closed")) return;
+	if (playSound) playClip();
+	gate.classList.add("welcome-gate-fading");
+	window.setTimeout(() => {
+		gate.classList.add("welcome-gate-closed");
+		gate.classList.remove("welcome-gate-fading");
+	}, 450);
+	document.documentElement.style.overflow = "";
+}
+
+if (audio && gate && form && input && output && skipBtn) {
+	// Shell integration: running `whoami` anywhere replays the clip.
+	document.addEventListener("lajin:whoami", () => playClip());
+
+	if (toggle) {
+		toggle.addEventListener("click", () => {
+			if (isMuted()) {
+				localStorage.removeItem(MUTED_KEY);
+			} else {
+				localStorage.setItem(MUTED_KEY, "1");
+				audio.pause();
+			}
+			syncToggle();
+		});
+	}
+
+	syncToggle();
+
+	if (!isMuted()) {
+		// Open the identification gate.
+		gate.classList.remove("welcome-gate-closed");
+		gate.setAttribute("aria-hidden", "false");
+		document.documentElement.style.overflow = "hidden";
+		input.focus();
+
+		form.addEventListener("submit", (event) => {
+			event.preventDefault();
+			const value = input.value.trim().toLowerCase();
+			if (value === "whoami") {
+				closeGate(true);
+				return;
+			}
+			output.textContent = value
+				? `command not found: ${value} — try \`whoami\``
+				: "silent treatment won't work — type `whoami`";
+			input.select();
+		});
+
+		skipBtn.addEventListener("click", () => closeGate(false));
+
+		document.addEventListener(
+			"keydown",
+			(event) => {
+				if (
+					event.key === "Escape" &&
+					!gate.classList.contains("welcome-gate-closed")
+				) {
+					closeGate(false);
+				}
+			},
+			{ once: true },
+		);
+	}
+}
+</script>

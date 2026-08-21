@@ -5,8 +5,8 @@ import "@fontsource/roboto/700.css";
 
 import BrandCursor from "@components/BrandCursor.astro";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
-import SignalAudio from "@components/SignalAudio.astro";
 import Terminal from "@components/Terminal.astro";
+import WelcomeSound from "@components/WelcomeSound.astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
@@ -156,8 +156,8 @@ const bannerOffset =
 	>
 		<ConfigCarrier></ConfigCarrier>
 		<BrandCursor></BrandCursor>
-		<SignalAudio></SignalAudio>
 		<Terminal></Terminal>
+		<WelcomeSound></WelcomeSound>
 		<div id="reading-progress" aria-hidden="true"></div>
 		<slot />
 

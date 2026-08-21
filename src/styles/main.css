@@ -258,71 +258,16 @@
     }
 }
 
-.signal-audio-toggle {
-    position: fixed;
-    right: 1rem;
-    bottom: 1rem;
-    z-index: 80;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    min-height: 2.75rem;
-    padding: 0 0.85rem;
-    border-radius: 999px;
-    border: 1px solid var(--card-border);
-    background: var(--float-panel-bg);
-    color: var(--btn-content);
-    font-weight: 800;
-    font-size: 0.78rem;
-    text-transform: uppercase;
-    box-shadow: var(--card-shadow);
-    backdrop-filter: blur(16px);
-    transition: transform 180ms ease, background 180ms ease, color 180ms ease;
+.welcome-sound-toggle .ws-off {
+    display: none;
 }
 
-.signal-audio-toggle:hover {
-    transform: translateY(-2px);
+.welcome-sound-toggle.is-muted .ws-on {
+    display: none;
 }
 
-.signal-audio-toggle.is-playing {
-    color: oklch(0.98 0.01 96);
-    background: var(--brand-red);
-}
-
-.signal-audio-toggle.autoplay-blocked:not(.is-playing) {
-    animation: signal-waiting 1.8s ease-in-out infinite;
-}
-
-.signal-audio-toggle.autoplay-blocked .signal-audio-icon {
-    animation: signal-bars 600ms ease-in-out infinite;
-}
-
-.signal-audio-icon {
-    font-size: 1.25rem;
-}
-
-.signal-audio-toggle.is-playing .signal-audio-icon {
-    animation: signal-bars 900ms ease-in-out infinite;
-}
-
-@keyframes signal-bars {
-    0%, 100% {
-        transform: scaleY(0.75);
-    }
-    50% {
-        transform: scaleY(1.15);
-    }
-}
-
-@keyframes signal-waiting {
-    0%, 100% {
-        box-shadow: var(--card-shadow);
-    }
-    50% {
-        box-shadow:
-            var(--card-shadow),
-            0 0 0 5px oklch(0.58 0.18 24 / 0.18);
-    }
+.welcome-sound-toggle.is-muted .ws-off {
+    display: block;
 }
 
 #navbar .card-base {

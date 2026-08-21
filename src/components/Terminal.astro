@@ -323,6 +323,7 @@ if (shell && output && form && input && closeBtn && dataEl) {
 				break;
 			case "whoami":
 				print(`${data.name} — ${data.bio}`, "lajin-shell-accent");
+				document.dispatchEvent(new CustomEvent("lajin:whoami"));
 				break;
 			case "ls": {
 				if (posts.length === 0) {
