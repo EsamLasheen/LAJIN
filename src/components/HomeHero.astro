@@ -30,7 +30,7 @@ const initials = profileConfig.name
                 <Icon name="material-symbols:my-location-rounded" class="text-[1.15rem]" />
                 <span>LAJIN field notes</span>
             </div>
-            <h1>{siteConfig.title}</h1>
+            <h1 class="hero-title-glitch" data-text={siteConfig.title}>{siteConfig.title}</h1>
             <p>{profileConfig.bio}</p>
             <div class="home-hero-actions">
                 <a class="btn-regular home-hero-action" href={url('/archive/')}>
@@ -42,6 +42,9 @@ const initials = profileConfig.name
                     About
                 </a>
             </div>
+            <button type="button" id="home-hero-shell-hint" class="home-hero-shell-hint">
+                press <kbd>`</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd> to open the LAJIN shell
+            </button>
         </div>
 
         <div class="home-hero-right">

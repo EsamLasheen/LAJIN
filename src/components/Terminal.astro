@@ -1,0 +1,495 @@
+---
+import { profileConfig, siteConfig } from "../config";
+import { getSortedPostsList } from "../utils/content-utils";
+
+const posts = (await getSortedPostsList()).map((post) => ({
+	slug: post.slug,
+	title: post.data.title,
+	tags: post.data.tags ?? [],
+	category: post.data.category || "",
+	description: post.data.description || "",
+}));
+---
+
+<div id="lajin-shell" class="lajin-shell float-panel-closed" role="dialog" aria-label="LAJIN shell" aria-modal="false">
+    <div class="lajin-shell-window">
+        <div class="lajin-shell-titlebar">
+            <span class="lajin-shell-dot red"></span>
+            <span class="lajin-shell-dot yellow"></span>
+            <span class="lajin-shell-dot green"></span>
+            <span class="lajin-shell-title">esam@lajin: ~/blog</span>
+            <button id="lajin-shell-close" class="lajin-shell-close" type="button" aria-label="Close shell">✕</button>
+        </div>
+        <div id="lajin-shell-output" class="lajin-shell-output" aria-live="polite"></div>
+        <form id="lajin-shell-form" class="lajin-shell-inputrow" autocomplete="off">
+            <span class="lajin-shell-prompt">➜</span>
+            <input
+                id="lajin-shell-input"
+                class="lajin-shell-input"
+                type="text"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Shell input"
+                placeholder="type `help` to start…"
+            />
+        </form>
+    </div>
+    <script is:inline type="application/json" id="lajin-shell-data" set:html={JSON.stringify({ posts, name: profileConfig.name, bio: profileConfig.bio, site: siteConfig.title })}></script>
+</div>
+
+<style>
+    .lajin-shell {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+        background: oklch(0.08 0.01 var(--hue) / 0.55);
+        backdrop-filter: blur(6px);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+    .lajin-shell.float-panel-closed {
+        display: none;
+    }
+    .lajin-shell-window {
+        position: relative;
+        width: min(46rem, 100%);
+        height: min(30rem, 85vh);
+        display: flex;
+        flex-direction: column;
+        border-radius: 0.9rem;
+        overflow: hidden;
+        border: 1px solid oklch(0.5 0.08 var(--hue) / 0.5);
+        background: oklch(0.14 0.015 var(--hue) / 0.97);
+        box-shadow: 0 24px 80px oklch(0 0 0 / 0.55);
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+    }
+    .lajin-shell-titlebar {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.85rem;
+        background: oklch(0.2 0.02 var(--hue));
+        border-bottom: 1px solid oklch(0.35 0.03 var(--hue) / 0.6);
+        user-select: none;
+    }
+    .lajin-shell-dot {
+        width: 0.7rem;
+        height: 0.7rem;
+        border-radius: 999px;
+    }
+    .lajin-shell-dot.red { background: #ff5f57; }
+    .lajin-shell-dot.yellow { background: #febc2e; }
+    .lajin-shell-dot.green { background: #28c840; }
+    .lajin-shell-title {
+        margin-left: 0.5rem;
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.65);
+        letter-spacing: 0.04em;
+    }
+    .lajin-shell-close {
+        margin-left: auto;
+        border: none;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.55);
+        cursor: pointer;
+        font-size: 0.8rem;
+        padding: 0.15rem 0.4rem;
+        border-radius: 0.35rem;
+    }
+    .lajin-shell-close:hover {
+        color: #fff;
+        background: rgba(255, 255, 255, 0.12);
+    }
+    .lajin-shell-output {
+        position: relative;
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.9rem 1rem;
+        font-size: 0.82rem;
+        line-height: 1.55;
+        color: oklch(0.87 0.03 var(--hue));
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+    .lajin-shell-output :global(a) {
+        color: oklch(0.78 0.13 var(--hue));
+    }
+    .lajin-shell-cmd { color: oklch(0.8 0.16 145); }
+    .lajin-shell-err { color: #ff6b6b; }
+    .lajin-shell-dim { color: rgba(255, 255, 255, 0.45); }
+    .lajin-shell-accent { color: oklch(0.78 0.14 var(--hue)); font-weight: 700; }
+    .lajin-shell-rain {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.35;
+    }
+    .lajin-shell-output > * {
+        position: relative;
+        z-index: 1;
+    }
+    .lajin-shell-inputrow {
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+        padding: 0.65rem 1rem;
+        border-top: 1px solid oklch(0.35 0.03 var(--hue) / 0.6);
+        background: oklch(0.17 0.015 var(--hue));
+    }
+    .lajin-shell-prompt {
+        color: oklch(0.78 0.16 145);
+        font-weight: 700;
+    }
+    .lajin-shell-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: oklch(0.92 0.02 var(--hue));
+        font-family: inherit;
+        font-size: 0.85rem;
+        caret-color: oklch(0.78 0.16 145);
+    }
+</style>
+
+<script>
+import { startMatrixRain } from "../utils/matrix-rain";
+import {
+	AUTO_MODE,
+	DARK_MODE,
+	LIGHT_MODE,
+} from "../constants/constants";
+import {
+	applyThemeToDocument,
+	getStoredTheme,
+	setTheme,
+} from "../utils/setting-utils";
+import type { LIGHT_DARK_MODE } from "../types/config";
+import { getPostUrlBySlug } from "../utils/url-utils";
+
+interface ShellPost {
+	slug: string;
+	title: string;
+	tags: string[];
+	category: string;
+	description: string;
+}
+
+interface ShellData {
+	posts: ShellPost[];
+	name: string;
+	bio: string;
+	site: string;
+}
+
+const shell = document.getElementById("lajin-shell");
+const output = document.getElementById("lajin-shell-output");
+const form = document.getElementById("lajin-shell-form") as HTMLFormElement | null;
+const input = document.getElementById("lajin-shell-input") as HTMLInputElement | null;
+const closeBtn = document.getElementById("lajin-shell-close");
+const dataEl = document.getElementById("lajin-shell-data");
+
+if (shell && output && form && input && closeBtn && dataEl) {
+	const data: ShellData = JSON.parse(dataEl.textContent || "{}");
+	const posts: ShellPost[] = data.posts ?? [];
+	const history: string[] = [];
+	let historyIndex = -1;
+	let stopRain: (() => void) | null = null;
+
+	const print = (text: string, cls = "") => {
+		const line = document.createElement("div");
+		if (cls) line.className = cls;
+		line.textContent = text;
+		output.appendChild(line);
+		output.scrollTop = output.scrollHeight;
+	};
+
+	const printHTML = (html: string) => {
+		const line = document.createElement("div");
+		line.innerHTML = html;
+		output.appendChild(line);
+		output.scrollTop = output.scrollHeight;
+	};
+
+	const esc = (s: string) =>
+		s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+	const banner = () => {
+		print(
+			[
+				"██╗      █████╗      ██╗███╗   ██╗",
+				"██║     ██╔══██╗     ██║████╗  ██║",
+				"██║     ███████║ ███ ██║██╔██╗ ██║",
+				"██║     ██╔══██║ ╚███╝██║██║╚██╗██║",
+				"███████╗██║  ██║  ╚═╝ ██║██║ ╚████║",
+				"╚══════╝╚═╝  ╚═╝       ╚═╝╚═╝  ╚═══╝",
+			].join("\n"),
+			"lajin-shell-cmd",
+		);
+		print(`${data.site} // offensive field notes`, "lajin-shell-dim");
+		print("");
+	};
+
+	const help = () => {
+		const rows: [string, string][] = [
+			["help", "show this panel"],
+			["whoami", "who is behind this blog"],
+			["ls", "list all writeups"],
+			["find <query>", "search titles + tags"],
+			["open <n|slug>", "open a writeup"],
+			["cat <slug>", "preview a writeup"],
+			["theme", "cycle light/dark/auto"],
+			["matrix", "toggle the digital rain"],
+			["flag", "capture the flag"],
+			["sudo <anything>", "try your luck"],
+			["clear", "wipe the output"],
+			["exit", "close the shell"],
+		];
+		for (const [cmd, desc] of rows) {
+			printHTML(
+				`<span class="lajin-shell-cmd">${esc(cmd.padEnd(16))}</span><span class="lajin-shell-dim">${esc(desc)}</span>`,
+			);
+		}
+	};
+
+	const findPosts = (query: string): ShellPost[] => {
+		const q = query.toLowerCase();
+		return posts.filter(
+			(p) =>
+				p.title.toLowerCase().includes(q) ||
+				p.slug.toLowerCase().includes(q) ||
+				p.category.toLowerCase().includes(q) ||
+				p.tags.some((t) => t.toLowerCase().includes(q)),
+		);
+	};
+
+	const resolvePost = (token: string): ShellPost | undefined => {
+		const index = Number.parseInt(token, 10);
+		if (!Number.isNaN(index) && String(index) === token.trim()) {
+			return posts[index - 1];
+		}
+		return posts.find((p) => p.slug === token);
+	};
+
+	const cycleTheme = () => {
+		const seq: LIGHT_DARK_MODE[] = [LIGHT_MODE, DARK_MODE, AUTO_MODE];
+		const next = seq[(seq.indexOf(getStoredTheme()) + 1) % seq.length];
+		setTheme(next);
+		applyThemeToDocument(next);
+		print(`theme → ${next}`, "lajin-shell-accent");
+	};
+
+	const toggleRain = () => {
+		if (stopRain) {
+			stopRain();
+			stopRain = null;
+			print("matrix rain: off", "lajin-shell-dim");
+			return;
+		}
+		let canvas = output.querySelector("#lajin-shell-rain-canvas") as HTMLCanvasElement | null;
+		if (!canvas) {
+			canvas = document.createElement("canvas");
+			canvas.id = "lajin-shell-rain-canvas";
+			canvas.className = "lajin-shell-rain";
+			output.prepend(canvas);
+		}
+		stopRain = startMatrixRain(canvas, { fontSize: 14 });
+		print("matrix rain: on — follow the white rabbit", "lajin-shell-cmd");
+	};
+
+	const openPost = (post: ShellPost) => {
+		print(`opening ${post.slug} …`, "lajin-shell-accent");
+		window.location.href = getPostUrlBySlug(post.slug);
+	};
+
+	const runCommand = (raw: string) => {
+		const cmdline = raw.trim();
+		if (!cmdline) return;
+		print(`➜ ${cmdline}`, "lajin-shell-dim");
+
+		const [cmd, ...args] = cmdline.split(/\s+/);
+		const arg = args.join(" ");
+
+		switch (cmd.toLowerCase()) {
+			case "help":
+				help();
+				break;
+			case "banner":
+				banner();
+				break;
+			case "whoami":
+				print(`${data.name} — ${data.bio}`, "lajin-shell-accent");
+				break;
+			case "ls": {
+				if (posts.length === 0) {
+					print("(empty — go write something!)", "lajin-shell-dim");
+					break;
+				}
+				posts.forEach((p, i) => {
+					print(`${String(i + 1).padStart(2, " ")}. ${p.slug}  ${p.category ? `[${p.category}]` : ""}`);
+				});
+				break;
+			}
+			case "find": {
+				if (!arg) {
+					print("usage: find <query>", "lajin-shell-err");
+					break;
+				}
+				const hits = findPosts(arg);
+				if (hits.length === 0) {
+					print(`no matches for "${arg}"`, "lajin-shell-err");
+					break;
+				}
+				hits.forEach((p) => {
+					const i = posts.indexOf(p) + 1;
+					print(`${i}. ${p.title}`, "lajin-shell-accent");
+				});
+				break;
+			}
+			case "cat": {
+				const post = resolvePost(arg);
+				if (!post) {
+					print(`cat: ${arg || "<missing>"}: no such writeup`, "lajin-shell-err");
+					break;
+				}
+				print(post.title, "lajin-shell-accent");
+				print(post.description || "(no description)", "lajin-shell-dim");
+				print(`tags: ${post.tags.map((t) => `#${t}`).join(" ") || "-"}`, "lajin-shell-dim");
+				break;
+			}
+			case "open": {
+				const post = resolvePost(arg);
+				if (!post) {
+					print(`open: ${arg || "<missing>"}: no such writeup`, "lajin-shell-err");
+					break;
+				}
+				openPost(post);
+				break;
+			}
+			case "theme":
+				cycleTheme();
+				break;
+			case "matrix":
+				toggleRain();
+				break;
+			case "flag":
+				print("flag{lajin_shell_pwned_your_heart}", "lajin-shell-cmd");
+				break;
+			case "sudo":
+				print(`[sudo] password for ${data.name.toLowerCase().replace(/\s+/g, "")}: ***`, "lajin-shell-dim");
+				print(`${data.name.split(" ")[0]} is not in the sudoers file. This incident will be reported. 🫡`, "lajin-shell-err");
+				break;
+			case "clear":
+				output
+					.querySelectorAll("div:not(.lajin-shell-rain)")
+					.forEach((el) => el.remove());
+				break;
+			case "exit":
+				closeShell();
+				break;
+			default:
+				print(`command not found: ${cmd} — try \`help\``, "lajin-shell-err");
+		}
+	};
+
+	const openShell = () => {
+		shell.classList.remove("float-panel-closed");
+		if (output.childElementCount === 0) {
+			banner();
+			print("Welcome to the LAJIN shell.", "lajin-shell-dim");
+			print("Type `help` for commands, `ls` for writeups.", "lajin-shell-dim");
+			print("");
+		}
+		input.focus();
+	};
+
+	const closeShell = () => {
+		shell.classList.add("float-panel-closed");
+		input.blur();
+	};
+
+	form.addEventListener("submit", (event) => {
+		event.preventDefault();
+		const value = input.value;
+		if (value.trim()) {
+			history.push(value);
+		}
+		historyIndex = history.length;
+		input.value = "";
+		runCommand(value);
+	});
+
+	input.addEventListener("keydown", (event) => {
+		if (event.key === "ArrowUp") {
+			if (historyIndex > 0) {
+				historyIndex--;
+				input.value = history[historyIndex] ?? "";
+			}
+			event.preventDefault();
+		} else if (event.key === "ArrowDown") {
+			if (historyIndex < history.length - 1) {
+				historyIndex++;
+				input.value = history[historyIndex] ?? "";
+			} else {
+				historyIndex = history.length;
+				input.value = "";
+			}
+			event.preventDefault();
+		} else if (event.key === "Tab") {
+			event.preventDefault();
+			const partial = input.value.toLowerCase();
+			if (!partial) return;
+			const pool = [
+				...["help", "whoami", "ls", "find", "open", "cat", "theme", "matrix", "flag", "sudo", "clear", "exit", "banner"],
+				...posts.map((p) => p.slug),
+			];
+			const match = pool.find((c) => c.startsWith(partial));
+			if (match) input.value = match;
+		}
+	});
+
+	closeBtn.addEventListener("click", closeShell);
+
+	shell.addEventListener("pointerdown", (event) => {
+		if (event.target === shell) closeShell();
+	});
+
+	document.addEventListener("keydown", (event) => {
+		const isOpen = !shell.classList.contains("float-panel-closed");
+		if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+			event.preventDefault();
+			if (isOpen) closeShell();
+			else openShell();
+			return;
+		}
+		if (isOpen && event.key === "Escape") {
+			closeShell();
+			return;
+		}
+		if (
+			!isOpen &&
+			event.key === "`" &&
+			!(event.target instanceof HTMLInputElement) &&
+			!(event.target instanceof HTMLTextAreaElement)
+		) {
+			event.preventDefault();
+			openShell();
+		}
+	});
+
+	document.addEventListener("click", (event) => {
+		const target =
+			event.target instanceof Element
+				? event.target.closest("#lajin-shell-switch, #home-hero-shell-hint")
+				: null;
+		if (target) {
+			event.preventDefault();
+			openShell();
+		}
+	});
+}
+</script>

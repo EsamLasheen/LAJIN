@@ -6,6 +6,7 @@ import "@fontsource/roboto/700.css";
 import BrandCursor from "@components/BrandCursor.astro";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import SignalAudio from "@components/SignalAudio.astro";
+import Terminal from "@components/Terminal.astro";
 import { profileConfig, siteConfig } from "@/config";
 import {
 	AUTO_MODE,
@@ -156,6 +157,8 @@ const bannerOffset =
 		<ConfigCarrier></ConfigCarrier>
 		<BrandCursor></BrandCursor>
 		<SignalAudio></SignalAudio>
+		<Terminal></Terminal>
+		<div id="reading-progress" aria-hidden="true"></div>
 		<slot />
 
 		<!-- increase the page height during page transition to prevent the scrolling animation from jumping -->
@@ -434,7 +437,7 @@ const setup = () => {
 		// hide the temp high element when the transition is done
 		const heightExtend = document.getElementById('page-height-extend')
 		if (heightExtend) {
-			heightExtend.classList.remove('hidden')
+			heightExtend.classList.add('hidden')
 		}
 	});
 	window.swup.hooks.on('visit:end', (_visit: {to: {url: string}}) => {
@@ -506,6 +509,82 @@ window.onresize = () => {
 	document.documentElement.style.setProperty('--banner-height-extend', `${offset}px`);
 }
 
+</script>
+
+<script>
+// Reading progress bar — only visible while reading a post
+const progressBar = document.getElementById('reading-progress');
+
+function updateReadingProgress() {
+	if (!progressBar) return;
+	const article = document.querySelector('.custom-md');
+	if (!article) {
+		progressBar.style.opacity = '0';
+		return;
+	}
+	const rect = article.getBoundingClientRect();
+	const total = rect.height - window.innerHeight;
+	if (total <= 0) {
+		progressBar.style.opacity = '0';
+		return;
+	}
+	const scrolled = Math.min(Math.max(-rect.top, 0), total);
+	progressBar.style.opacity = '1';
+	progressBar.style.width = `${(scrolled / total) * 100}%`;
+}
+
+window.addEventListener('scroll', updateReadingProgress, { passive: true });
+window.addEventListener('resize', updateReadingProgress);
+updateReadingProgress();
+
+function hookProgressToSwup() {
+	window.swup.hooks.on('page:view', () => setTimeout(updateReadingProgress, 60));
+}
+if (window?.swup?.hooks) {
+	hookProgressToSwup();
+} else {
+	document.addEventListener('swup:enable', hookProgressToSwup);
+}
+
+// Konami code → PWN MODE (CRT scanlines + hue shift)
+const KONAMI = [
+	'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
+	'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a',
+];
+let konamiIndex = 0;
+
+function setPwnMode(enabled: boolean) {
+	document.documentElement.classList.toggle('pwn-mode', enabled);
+	localStorage.setItem('pwn-mode', enabled ? '1' : '0');
+	showPwnToast(enabled ? 'PWN MODE ACTIVATED' : 'PWN MODE DISABLED');
+}
+
+let toastTimer: number | undefined;
+function showPwnToast(message: string) {
+	let toast = document.getElementById('pwn-toast');
+	if (!toast) {
+		toast = document.createElement('div');
+		toast.id = 'pwn-toast';
+		document.body.appendChild(toast);
+	}
+	toast.textContent = message;
+	toast.classList.add('show');
+	window.clearTimeout(toastTimer);
+	toastTimer = window.setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+document.addEventListener('keydown', (event) => {
+	const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+	konamiIndex = key === KONAMI[konamiIndex] ? konamiIndex + 1 : (key === KONAMI[0] ? 1 : 0);
+	if (konamiIndex === KONAMI.length) {
+		konamiIndex = 0;
+		setPwnMode(!document.documentElement.classList.contains('pwn-mode'));
+	}
+});
+
+if (localStorage.getItem('pwn-mode') === '1') {
+	document.documentElement.classList.add('pwn-mode');
+}
 </script>
 
 <script>

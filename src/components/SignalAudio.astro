@@ -20,8 +20,6 @@ import { Icon } from "astro-icon/components";
     let graphConnected = false;
     let timer;
     let playing = false;
-    let audioUnlocked = false;
-    let autoplayAttempted = false;
     let step = 0;
 
     const pattern = [
@@ -39,21 +37,21 @@ import { Icon } from "astro-icon/components";
         if (label) label.textContent = text;
     };
 
-    const updateState = (isPlaying, blocked = false) => {
+    const updateState = (isPlaying) => {
         playing = isPlaying;
         button.classList.toggle("is-playing", isPlaying);
-        button.classList.toggle("autoplay-blocked", blocked);
         button.setAttribute("aria-pressed", isPlaying ? "true" : "false");
-        setLabel(blocked ? "Click for signal" : isPlaying ? "Signal on" : "Signal");
+        setLabel(isPlaying ? "Signal on" : "Signal");
     };
 
     const ensureGraph = async () => {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        if (!AudioContext) {
+        const legacyWindow = /** @type {any} */ (window);
+        const AudioContextCtor = window.AudioContext || legacyWindow.webkitAudioContext;
+        if (!AudioContextCtor) {
             throw new Error("Web Audio is not supported.");
         }
 
-        ctx = ctx || new AudioContext();
+        ctx = ctx || new AudioContextCtor();
         if (ctx.state === "suspended") {
             await ctx.resume();
         }
@@ -88,7 +86,6 @@ import { Icon } from "astro-icon/components";
             compressor.connect(ctx.destination);
             graphConnected = true;
         }
-        audioUnlocked = true;
     };
 
     const playTone = (frequency, duration, gainValue, type = "triangle", detune = 0) => {
@@ -130,13 +127,13 @@ import { Icon } from "astro-icon/components";
         step = 0;
         pulse();
         timer = window.setInterval(pulse, 520);
-        updateState(true, false);
+        updateState(true);
     };
 
     const stop = () => {
         window.clearInterval(timer);
         timer = undefined;
-        updateState(false, false);
+        updateState(false);
     };
 
     button.addEventListener("click", async () => {
@@ -147,45 +144,8 @@ import { Icon } from "astro-icon/components";
         try {
             await start();
         } catch (_error) {
-            updateState(false, true);
+            setLabel("No audio");
         }
     });
-
-    const tryAutoplay = async () => {
-        if (autoplayAttempted || playing) return;
-        autoplayAttempted = true;
-        try {
-            await start();
-        } catch (_error) {
-            updateState(false, true);
-        }
-    };
-
-    const unlockOnGesture = async (event) => {
-        if (event.target instanceof Element && event.target.closest("#signal-audio-toggle")) {
-            return;
-        }
-        if (audioUnlocked || playing) {
-            return;
-        }
-        try {
-            await start();
-            window.removeEventListener("pointerdown", unlockOnGesture);
-            window.removeEventListener("keydown", unlockOnGesture);
-            window.removeEventListener("touchstart", unlockOnGesture);
-        } catch (_error) {
-            updateState(false, true);
-        }
-    };
-
-    window.addEventListener("pointerdown", unlockOnGesture, { passive: true });
-    window.addEventListener("keydown", unlockOnGesture);
-    window.addEventListener("touchstart", unlockOnGesture, { passive: true });
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", tryAutoplay, { once: true });
-    } else {
-        tryAutoplay();
-    }
 })();
 </script>
