@@ -1,5 +1,5 @@
 ---
-import { profileConfig, siteConfig } from "../config";
+import { hiddenFlags, profileConfig, siteConfig } from "../config";
 import { getSortedPostsList } from "../utils/content-utils";
 
 const posts = (await getSortedPostsList()).map((post) => ({
@@ -9,6 +9,9 @@ const posts = (await getSortedPostsList()).map((post) => ({
 	category: post.data.category || "",
 	description: post.data.description || "",
 }));
+
+const validFlags = hiddenFlags.map((f) => f.flag);
+const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
 ---
 
 <div id="lajin-shell" class="lajin-shell float-panel-closed" role="dialog" aria-label="LAJIN shell" aria-modal="false">
@@ -34,7 +37,7 @@ const posts = (await getSortedPostsList()).map((post) => ({
             />
         </form>
     </div>
-    <script is:inline type="application/json" id="lajin-shell-data" set:html={JSON.stringify({ posts, name: profileConfig.name, bio: profileConfig.bio, site: siteConfig.title })}></script>
+    <script is:inline type="application/json" id="lajin-shell-data" set:html={JSON.stringify({ posts, name: profileConfig.name, bio: profileConfig.bio, site: siteConfig.title, validFlags, flagPosts })}></script>
 </div>
 
 <style>
@@ -170,6 +173,7 @@ import {
 } from "../utils/setting-utils";
 import type { LIGHT_DARK_MODE } from "../types/config";
 import { getPostUrlBySlug } from "../utils/url-utils";
+import { getUnlockedAchievements, unlock } from "../utils/achievements";
 
 interface ShellPost {
 	slug: string;
@@ -184,6 +188,8 @@ interface ShellData {
 	name: string;
 	bio: string;
 	site: string;
+	validFlags: string[];
+	flagPosts: Record<string, string>;
 }
 
 const shell = document.getElementById("lajin-shell");
@@ -199,6 +205,37 @@ if (shell && output && form && input && closeBtn && dataEl) {
 	const history: string[] = [];
 	let historyIndex = -1;
 	let stopRain: (() => void) | null = null;
+
+	// ---- hidden flags -------------------------------------------------
+	const FOUND_KEY = "lajin-found-flags";
+
+	function getFoundFlags(): string[] {
+		try {
+			const raw = localStorage.getItem(FOUND_KEY);
+			return raw ? (JSON.parse(raw) as string[]) : [];
+		} catch {
+			return [];
+		}
+	}
+
+	function saveFoundFlags(flags: string[]) {
+		localStorage.setItem(FOUND_KEY, JSON.stringify(flags));
+	}
+
+	function captureFlag(flag: string) {
+		const found = getFoundFlags();
+		if (found.includes(flag)) return false;
+		found.push(flag);
+		saveFoundFlags(found);
+		unlock("flag-hunter");
+		if (data.validFlags && found.length >= data.validFlags.length) {
+			unlock("completionist");
+		}
+		return true;
+	}
+
+	// ---- output helpers ------------------------------------------------
+	let busy = false;
 
 	const print = (text: string, cls = "") => {
 		const line = document.createElement("div");
@@ -242,9 +279,14 @@ if (shell && output && form && input && closeBtn && dataEl) {
 			["find <query>", "search titles + tags"],
 			["open <n|slug>", "open a writeup"],
 			["cat <slug>", "preview a writeup"],
+			["nmap <target>", "recon the blog"],
+			["run", "run the exploit (trust me)"],
+			["cow [msg]", "a wise cow appears"],
 			["theme", "cycle light/dark/auto"],
 			["matrix", "toggle the digital rain"],
-			["flag", "capture the flag"],
+			["flags", "hidden flag progress"],
+			["submit <flag>", "capture a hidden flag"],
+			["score", "your achievements + flags"],
 			["sudo <anything>", "try your luck"],
 			["clear", "wipe the output"],
 			["exit", "close the shell"],
@@ -306,6 +348,60 @@ if (shell && output && form && input && closeBtn && dataEl) {
 		window.location.href = getPostUrlBySlug(post.slug);
 	};
 
+	const printLater = (delay: number, text: string, cls = "") => {
+		window.setTimeout(() => print(text, cls), delay);
+	};
+
+	const nmapScan = (target: string) => {
+		if (busy) return;
+		busy = true;
+		const host = target || "lajin.local";
+		print(`Starting Nmap 7.95 ( https://nmap.org ) at ${new Date().toLocaleTimeString()}`, "lajin-shell-dim");
+		printLater(300, `Scanning ${host} (1000 ports)`, "lajin-shell-dim");
+		printLater(700, "PORT     STATE  SERVICE", "");
+		printLater(900, "22/tcp   open   ssh", "lajin-shell-cmd");
+		printLater(1050, "80/tcp   open   http", "lajin-shell-cmd");
+		printLater(1200, "443/tcp  open   https", "lajin-shell-cmd");
+		printLater(1400, "1337/tcp open   leet", "lajin-shell-accent");
+		printLater(1700, `Nmap done: 1 host up, 0 vulnerabilities — it's a blog, not a target :)`, "lajin-shell-dim");
+		printLater(1900, "", "");
+		window.setTimeout(() => (busy = false), 2000);
+	};
+
+	const runExploit = () => {
+		if (busy) return;
+		busy = true;
+		const steps = [
+			"[*] loading exploit modules…",
+			"[*] fingerprinting target…",
+			"[*] sending payload…",
+			"[*] escalating privileges…",
+			"[-] Access denied.",
+		];
+		steps.forEach((s, i) => printLater(280 * i, s, i === steps.length - 1 ? "lajin-shell-err" : "lajin-shell-cmd"));
+		printLater(steps.length * 280 + 100, "[!] This blog has no admin panel for you. Nice try though.", "lajin-shell-accent");
+		printLater(steps.length * 280 + 250, "", "");
+		window.setTimeout(() => (busy = false), steps.length * 280 + 300);
+	};
+
+	const cowSay = (msg: string) => {
+		const line = msg || "hack responsibly.";
+		const border = "-".repeat(line.length + 2);
+		print(
+			[
+				` ${border}`,
+				`< ${line} >`,
+				` ${border}`,
+				"        \\   ^__^",
+				"         \\  (oo)\\_______",
+				"            (__)\\       )\\/\\",
+				"                ||----w |",
+				"                ||     ||",
+			].join("\n"),
+			"lajin-shell-cmd",
+		);
+	};
+
 	const runCommand = (raw: string) => {
 		const cmdline = raw.trim();
 		if (!cmdline) return;
@@ -324,6 +420,7 @@ if (shell && output && form && input && closeBtn && dataEl) {
 			case "whoami":
 				print(`${data.name} — ${data.bio}`, "lajin-shell-accent");
 				document.dispatchEvent(new CustomEvent("lajin:whoami"));
+				unlock("know-thyself");
 				break;
 			case "ls": {
 				if (posts.length === 0) {
@@ -374,9 +471,67 @@ if (shell && output && form && input && closeBtn && dataEl) {
 			case "theme":
 				cycleTheme();
 				break;
-			case "matrix":
+			case "matrix": {
+				const wasOff = !stopRain;
 				toggleRain();
+				if (wasOff) unlock("digital-rain");
 				break;
+			}
+			case "nmap":
+				nmapScan(arg);
+				break;
+			case "run":
+			case "exploit":
+				runExploit();
+				break;
+			case "cow":
+				cowSay(arg);
+				break;
+			case "flags": {
+				const found = getFoundFlags();
+				const total = data.validFlags?.length ?? 0;
+				print(`hidden flags: ${found.length}/${total}`, "lajin-shell-accent");
+				for (const flag of data.validFlags ?? []) {
+					if (found.includes(flag)) {
+						print(`  ${flag}  [captured]`, "lajin-shell-cmd");
+					} else {
+						const post = data.flagPosts?.[flag];
+						print(`  flag{...}?  [hidden — somewhere in ${post ?? "a writeup"}]`, "lajin-shell-dim");
+					}
+				}
+				break;
+			}
+			case "submit": {
+				const match = arg.match(/flag\{[^}]+\}/);
+				if (!match) {
+					print("usage: submit flag{...}", "lajin-shell-err");
+					break;
+				}
+				if (!(data.validFlags ?? []).includes(match[0])) {
+					print("invalid or unknown flag — keep hunting.", "lajin-shell-err");
+					break;
+				}
+				if (getFoundFlags().includes(match[0])) {
+					print("already captured — greedy much?", "lajin-shell-dim");
+					break;
+				}
+				captureFlag(match[0]);
+				const count = getFoundFlags().length;
+				print("*** FLAG ACCEPTED ***", "lajin-shell-cmd");
+				print(`${match[0]} captured (${count}/${(data.validFlags ?? []).length})`, "lajin-shell-accent");
+				break;
+			}
+			case "score":
+			case "achievements": {
+				const achv = getUnlockedAchievements();
+				const flags = getFoundFlags();
+				print(
+					`achievements: ${achv.length}/8   |   flags: ${flags.length}/${(data.validFlags ?? []).length}`,
+					"lajin-shell-accent",
+				);
+				print("full trophy case → /achievements/", "lajin-shell-dim");
+				break;
+			}
 			case "flag":
 				print("flag{lajin_shell_pwned_your_heart}", "lajin-shell-cmd");
 				break;
@@ -399,10 +554,11 @@ if (shell && output && form && input && closeBtn && dataEl) {
 
 	const openShell = () => {
 		shell.classList.remove("float-panel-closed");
+		unlock("first-contact");
 		if (output.childElementCount === 0) {
 			banner();
 			print("Welcome to the LAJIN shell.", "lajin-shell-dim");
-			print("Type `help` for commands, `ls` for writeups.", "lajin-shell-dim");
+			print("Type `help` for commands — hidden flags are out there.", "lajin-shell-dim");
 			print("");
 		}
 		input.focus();
@@ -445,7 +601,7 @@ if (shell && output && form && input && closeBtn && dataEl) {
 			const partial = input.value.toLowerCase();
 			if (!partial) return;
 			const pool = [
-				...["help", "whoami", "ls", "find", "open", "cat", "theme", "matrix", "flag", "sudo", "clear", "exit", "banner"],
+				...["help", "whoami", "ls", "find", "open", "cat", "nmap", "run", "cow", "theme", "matrix", "flags", "submit", "score", "sudo", "clear", "exit", "banner"],
 				...posts.map((p) => p.slug),
 			];
 			const match = pool.find((c) => c.startsWith(partial));

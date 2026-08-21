@@ -1,8 +1,10 @@
 ---
 import path from "node:path";
 import Bismillah from "@components/Bismillah.astro";
+import Giscus from "@components/comments/Giscus.astro";
 import License from "@components/misc/License.astro";
 import Markdown from "@components/misc/Markdown.astro";
+import RelatedPosts from "@components/RelatedPosts.astro";
 import I18nKey from "@i18n/i18nKey";
 import { i18n } from "@i18n/translation";
 import MainGridLayout from "@layouts/MainGridLayout.astro";
@@ -28,6 +30,19 @@ const { entry } = Astro.props;
 const { Content, headings } = await entry.render();
 
 const { remarkPluginFrontmatter } = await entry.render();
+
+// Series: siblings sharing the same series name, ordered by seriesOrder.
+const allPostsForSeries = entry.data.series ? await getSortedPosts() : [];
+const seriesPosts = entry.data.series
+	? allPostsForSeries
+			.filter((p) => p.data.series === entry.data.series)
+			.sort(
+				(a, b) =>
+					(a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0) ||
+					b.data.published.valueOf() - a.data.published.valueOf(),
+			)
+	: [];
+const seriesIndex = seriesPosts.findIndex((p) => p.slug === entry.slug) + 1;
 
 // Resolve the cover image to its final public URL for social preview cards.
 const imageFiles = import.meta.glob<ImageMetadata>(
@@ -125,6 +140,40 @@ const jsonLd = {
             }
 
 
+            <!-- series progress -->
+            {seriesPosts.length > 1 && (
+                <div class="mb-6 p-4 rounded-xl border border-[var(--line-divider)] bg-black/[0.03] dark:bg-white/[0.04]">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <div class="text-sm font-bold text-[var(--primary)] uppercase tracking-wide">
+                            {entry.data.series}
+                        </div>
+                        <div class="text-sm text-black/50 dark:text-white/50">
+                            Part {seriesIndex} / {seriesPosts.length}
+                        </div>
+                    </div>
+                    <div class="h-2 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden mb-3">
+                        <div class="h-full rounded-full bg-[var(--primary)] transition-all"
+                             style={`width: ${Math.round((seriesIndex / seriesPosts.length) * 100)}%`}>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-1.5">
+                        {seriesPosts.map((p, i) => (
+                            <a class:list={["text-sm flex items-center gap-2 rounded-lg px-2 py-1 -mx-2",
+                                p.slug === entry.slug
+                                    ? "font-bold text-[var(--primary)]"
+                                    : "text-black/60 dark:text-white/60 hover:text-[var(--primary)]"]}
+                               href={getPostUrlBySlug(p.slug)}>
+                                <span class:list={["inline-block w-5 h-5 leading-5 text-center rounded-full text-xs font-bold",
+                                    p.slug === entry.slug ? "bg-[var(--primary)] text-white" : "bg-black/10 dark:bg-white/10"]}>
+                                    {i + 1}
+                                </span>
+                                {p.data.title}
+                            </a>
+                        ))}
+                    </div>
+                </div>
+            )}
+
             {entry.data.bismillah && <Bismillah class="onload-animation" />}
 
             <Markdown class="mb-6 markdown-content onload-animation">
@@ -132,6 +181,9 @@ const jsonLd = {
             </Markdown>
 
             {licenseConfig.enable && <License title={entry.data.title} slug={entry.slug} pubDate={entry.data.published} class="mb-6 rounded-xl license-container onload-animation"></License>}
+
+            <RelatedPosts entry={entry}></RelatedPosts>
+            <Giscus></Giscus>
 
         </div>
     </div>

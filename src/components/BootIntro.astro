@@ -1,0 +1,82 @@
+<div id="boot-intro" class="boot-intro boot-intro-hidden" aria-hidden="true">
+    <div class="boot-inner">
+        <div class="boot-line" style="animation-delay:0.05s">LAJIN BIOS v2.6 — initializing…</div>
+        <div class="boot-line" style="animation-delay:0.3s">loading offensive modules.......... ok</div>
+        <div class="boot-line boot-ok" style="animation-delay:0.55s">access granted</div>
+    </div>
+</div>
+
+<style>
+    .boot-intro {
+        position: fixed;
+        inset: 0;
+        z-index: 99;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #05060a;
+        transition: opacity 0.4s ease;
+    }
+
+    .boot-intro.boot-intro-hidden {
+        display: none;
+    }
+
+    .boot-intro.boot-intro-fading {
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .boot-inner {
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        font-size: 0.85rem;
+        color: oklch(0.78 0.14 145);
+        min-width: min(24rem, 86vw);
+    }
+
+    .boot-line {
+        opacity: 0;
+        animation: boot-type 0.12s steps(6) forwards;
+        white-space: pre;
+    }
+
+    .boot-line.boot-ok {
+        color: oklch(0.85 0.18 var(--hue));
+        font-weight: 700;
+        text-shadow: 0 0 14px oklch(0.75 0.18 var(--hue) / 0.6);
+    }
+
+    @keyframes boot-type {
+        from { opacity: 0; transform: translateY(3px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+const intro = document.getElementById("boot-intro");
+const KEY = "lajin-boot-seen";
+
+function dismiss() {
+	if (!intro || intro.classList.contains("boot-intro-fading")) return;
+	intro.classList.add("boot-intro-fading");
+	window.setTimeout(() => intro.classList.add("boot-intro-hidden"), 420);
+	window.removeEventListener("pointerdown", dismiss);
+	window.removeEventListener("keydown", dismiss);
+}
+
+if (
+	intro &&
+	!sessionStorage.getItem(KEY) &&
+	!window.matchMedia("(prefers-reduced-motion: reduce)").matches
+) {
+	sessionStorage.setItem(KEY, "1");
+	document.documentElement.style.overflow = "hidden";
+	intro.classList.remove("boot-intro-hidden");
+	window.addEventListener("pointerdown", dismiss);
+	window.addEventListener("keydown", dismiss);
+	window.setTimeout(() => {
+		dismiss();
+		document.documentElement.style.overflow = "";
+	}, 1250);
+}
+</script>

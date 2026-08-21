@@ -38,6 +38,10 @@ export const navBarConfig: NavBarConfig = {
 		LinkPreset.Archive,
 		LinkPreset.About,
 		{
+			name: "Trophies",
+			url: "/achievements/",
+		},
+		{
 			name: "GitHub",
 			url: "https://github.com/EsamLasheen/LAJIN",
 			external: true,
@@ -67,3 +71,43 @@ export const licenseConfig: LicenseConfig = {
 export const expressiveCodeConfig: ExpressiveCodeConfig = {
 	theme: "github-dark",
 };
+
+/* Hidden flags for the blog-wide CTF treasure hunt.
+ * Embed the literal flag string anywhere in the target post (a <spoiler> works great),
+ * readers capture it with `submit flag{...}` in the LAJIN shell (Ctrl+K). */
+export interface HiddenFlag {
+	id: string;
+	flag: string;
+	post: string;
+	hint: string;
+}
+
+export const hiddenFlags: HiddenFlag[] = [
+	{
+		id: "ai-platform",
+		flag: "flag{claude_ships_secrets}",
+		post: "0002_ai-platform-pentest",
+		hint: "something is hiding under the surface of the AI platform writeup — hover around",
+	},
+	{
+		id: "ottergram",
+		flag: "flag{access_control_matters}",
+		post: "0001_ottergram",
+		hint: "the otter knows something about access control… read carefully",
+	},
+];
+
+/* Privacy-friendly analytics (optional).
+ * Set `goatcounter` to your GoatCounter code, e.g. "myblog", to enable:
+ * <script data-goatcounter="https://myblog.goatcounter.com/count"></script> */
+export const analyticsConfig: { goatcounter?: string } = {};
+
+/* Giscus comments (optional).
+ * 1. Enable Discussions on this GitHub repo and install the giscus app
+ * 2. Fill in repo / repoId / categoryId from https://giscus.app
+ * Leave repo empty to keep comments disabled. */
+export const giscusConfig: {
+	repo?: `${string}/${string}`;
+	repoId?: string;
+	categoryId?: string;
+} = {};

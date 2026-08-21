@@ -138,6 +138,9 @@ import { url } from "../utils/url-utils";
 
 <script>
 import { startMatrixRain } from "../utils/matrix-rain";
+import { unlock } from "../utils/achievements";
+
+unlock("signal-lost");
 
 const canvas = document.getElementById("matrix-canvas") as HTMLCanvasElement | null;
 if (canvas && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {

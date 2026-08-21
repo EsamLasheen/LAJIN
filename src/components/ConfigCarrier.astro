@@ -1,7 +1,25 @@
 ---
-
 import { siteConfig } from "../config";
+import { getSortedPosts } from "../utils/content-utils";
+
+// Count distinct hidden flags across all post bodies for the CTF progress UI.
+let totalFlags = 0;
+try {
+	const posts = await getSortedPosts();
+	const flagSet = new Set<string>();
+	for (const post of posts) {
+		const matches = (post.body || "").match(/flag\{[^}]+\}/g);
+		if (matches) {
+			for (const flag of matches) {
+				flagSet.add(flag);
+			}
+		}
+	}
+	totalFlags = flagSet.size;
+} catch {
+	totalFlags = 0;
+}
 ---
 
-<div id="config-carrier" data-hue={siteConfig.themeColor.hue}>
+<div id="config-carrier" data-hue={siteConfig.themeColor.hue} data-total-flags={totalFlags}>
 </div>

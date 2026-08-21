@@ -108,3 +108,5 @@ To fix this vulnerability, the application should enforce strict authorization c
 1. **Implement server-side role checks:** Do not rely on hiding buttons in the frontend UI. The server must verify that the requesting user's JWT contains the `admin` role before processing requests at `/api/admin/*`.
 2. **Follow the principle of least privilege:** Users should only have access to API endpoints that are strictly necessary for their role.
 3. **Use shared authorization middleware:** Wrap administrative routes with consistent authentication and authorization checks.
+
+<spoiler>flag{access_control_matters}</spoiler>

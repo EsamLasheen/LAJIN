@@ -326,6 +326,8 @@ const audioUrl = url("/audio/paul-atreides.m4a");
 </style>
 
 <script>
+import { unlock } from "../utils/achievements";
+
 const gate = document.getElementById("welcome-gate");
 const form = document.getElementById("welcome-gate-form") as HTMLFormElement | null;
 const input = document.getElementById("welcome-gate-input") as HTMLInputElement | null;
@@ -387,6 +389,7 @@ if (audio && gate && form && input && output && skipBtn) {
 				output.classList.remove("err");
 				output.classList.add("ok-line");
 				output.textContent = "[ ok ] identity confirmed — welcome back";
+				unlock("identity");
 				playClip();
 				window.setTimeout(() => {
 					gate.classList.add("welcome-gate-fading");

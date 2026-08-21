@@ -1,0 +1,75 @@
+<div id="achv-toast" class="achv-toast" aria-live="polite"></div>
+
+<style>
+    .achv-toast {
+        position: fixed;
+        left: 50%;
+        bottom: 5.5rem;
+        z-index: 1000;
+        transform: translate(-50%, 200%);
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        max-width: min(26rem, 90vw);
+        padding: 0.75rem 1.1rem;
+        border-radius: 0.9rem;
+        background: oklch(0.15 0.02 var(--hue) / 0.97);
+        border: 1px solid oklch(0.72 0.14 var(--hue) / 0.6);
+        box-shadow:
+            0 12px 40px oklch(0 0 0 / 0.4),
+            0 0 28px oklch(0.7 0.16 var(--hue) / 0.35);
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        color: oklch(0.92 0.02 var(--hue));
+        transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+        pointer-events: none;
+    }
+
+    .achv-toast.show {
+        transform: translate(-50%, 0);
+    }
+
+    .achv-toast :global(.achv-badge) {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.2rem;
+        height: 2.2rem;
+        border-radius: 999px;
+        background: oklch(0.72 0.16 var(--hue) / 0.18);
+        color: oklch(0.78 0.16 var(--hue));
+    }
+</style>
+
+<script>
+const toast = document.getElementById("achv-toast");
+let timer = 0;
+
+function show(detail: { title: string; desc?: string }) {
+	if (!toast || !detail?.title) return;
+	toast.innerHTML = "";
+	const badge = document.createElement("div");
+	badge.className = "achv-badge";
+	badge.textContent = "★";
+	const body = document.createElement("div");
+	const label = document.createElement("div");
+	label.style.fontWeight = "700";
+	label.textContent = `achievement unlocked — ${detail.title}`;
+	body.appendChild(label);
+	if (detail.desc) {
+		const desc = document.createElement("div");
+		desc.style.cssText =
+			"font-size:0.75rem;opacity:0.65;margin-top:0.15rem;white-space:normal;";
+		desc.textContent = detail.desc;
+		body.appendChild(desc);
+	}
+	toast.append(badge, body);
+	toast.classList.add("show");
+	window.clearTimeout(timer);
+	timer = window.setTimeout(() => toast.classList.remove("show"), 3200);
+}
+
+document.addEventListener("lajin:achievement", (event) => {
+	show((event as CustomEvent<{ title: string; desc?: string }>).detail);
+});
+</script>

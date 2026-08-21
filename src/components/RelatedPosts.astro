@@ -1,0 +1,53 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { getSortedPosts } from "../utils/content-utils";
+import { getPostUrlBySlug } from "../utils/url-utils";
+
+interface Props {
+	entry: CollectionEntry<"posts">;
+}
+
+const { entry } = Astro.props;
+
+// Score other posts by shared tags; fall back to most recent others.
+const allPosts = (await getSortedPosts()).filter((p) => p.slug !== entry.slug);
+const myTags = new Set(entry.data.tags ?? []);
+const scored = allPosts
+	.map((p) => ({
+		post: p,
+		score: (p.data.tags ?? []).reduce((n, t) => n + (myTags.has(t) ? 1 : 0), 0),
+	}))
+	.sort((a, b) => b.score - a.score);
+
+const maxScore = scored[0]?.score ?? 0;
+const related =
+	maxScore > 0
+		? scored
+				.filter((s) => s.score > 0)
+				.slice(0, 3)
+				.map((s) => s.post)
+		: scored.slice(0, 3).map((s) => s.post);
+---
+
+{related.length > 0 && (
+    <div class="card-base p-5 mb-4 rounded-[var(--radius-large)] onload-animation">
+        <div class="font-bold text-lg mb-4 flex items-center gap-2">
+            <span class="w-1 h-4 rounded-md bg-[var(--primary)] inline-block"></span>
+            Related reads
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {related.map((post) => (
+                <a class="btn-card !justify-start !flex-col !items-start p-4 rounded-xl active:scale-[0.98] transition-all hover:-translate-y-0.5"
+                   href={getPostUrlBySlug(post.slug)}
+                   aria-label={`Read ${post.data.title}`}>
+                    <div class="text-sm font-bold text-black/75 dark:text-white/75 line-clamp-2 w-full text-left">
+                        {post.data.title}
+                    </div>
+                    <div class="text-xs text-black/40 dark:text-white/40 mt-2 w-full text-left">
+                        {(post.data.tags ?? []).slice(0, 3).map((t) => `#${t}`).join(" ")}
+                    </div>
+                </a>
+            ))}
+        </div>
+    </div>
+)}

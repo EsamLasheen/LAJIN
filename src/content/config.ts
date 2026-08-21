@@ -13,6 +13,10 @@ const postsCollection = defineCollection({
 		lang: z.string().optional().default(""),
 		bismillah: z.boolean().optional().default(false),
 
+		/* Series support */
+		series: z.string().optional().default(""),
+		seriesOrder: z.number().optional(),
+
 		/* For internal use */
 		prevTitle: z.string().default(""),
 		prevSlug: z.string().default(""),

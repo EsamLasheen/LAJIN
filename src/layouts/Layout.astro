@@ -3,6 +3,8 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
+import AchievementToast from "@components/AchievementToast.astro";
+import BootIntro from "@components/BootIntro.astro";
 import BrandCursor from "@components/BrandCursor.astro";
 import ConfigCarrier from "@components/ConfigCarrier.astro";
 import Terminal from "@components/Terminal.astro";
@@ -160,6 +162,7 @@ const bannerOffset =
 
 		<slot name="head"></slot>
 
+		<link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />
 		<link rel="alternate" type="application/rss+xml" title={profileConfig.name} href={`${Astro.site}rss.xml`}/>
 
 	</head>
@@ -168,6 +171,8 @@ const bannerOffset =
 	>
 		<ConfigCarrier></ConfigCarrier>
 		<BrandCursor></BrandCursor>
+		<BootIntro></BootIntro>
+		<AchievementToast></AchievementToast>
 		<Terminal></Terminal>
 		<WelcomeSound></WelcomeSound>
 		<div id="reading-progress" aria-hidden="true"></div>
@@ -569,6 +574,9 @@ function setPwnMode(enabled: boolean) {
 	document.documentElement.classList.toggle('pwn-mode', enabled);
 	localStorage.setItem('pwn-mode', enabled ? '1' : '0');
 	showPwnToast(enabled ? 'PWN MODE ACTIVATED' : 'PWN MODE DISABLED');
+	if (enabled) {
+		import('../utils/achievements').then((m) => m.unlock('pwn-mode'));
+	}
 }
 
 let toastTimer: number | undefined;

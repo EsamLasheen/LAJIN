@@ -1,0 +1,140 @@
+---
+import MainGridLayout from "@layouts/MainGridLayout.astro";
+import { hiddenFlags } from "@/config";
+import { ACHIEVEMENTS } from "@/utils/achievements";
+import { getPostUrlBySlug } from "@/utils/url-utils";
+---
+
+<MainGridLayout title="Trophy Case">
+    <div class="card-base px-6 md:px-9 py-6 onload-animation">
+        <div class="relative w-full block font-bold text-3xl md:text-[2.25rem]/[2.75rem] mb-3
+            md:before:w-1 before:h-5 before:rounded-md before:bg-[var(--primary)]
+            before:absolute before:top-[0.75rem] before:left-[-1.125rem]">
+            Trophy Case
+        </div>
+
+        <p class="text-black/50 dark:text-white/50 mb-8">
+            Easter eggs, secret commands and hidden flags — everything is stored locally in your browser.
+            Open the LAJIN shell (<kbd>Ctrl</kbd>+<kbd>K</kbd>) and start poking around.
+        </p>
+
+        <!-- flag progress -->
+        <div class="flex items-center gap-3 mb-8" data-pagefind-ignore>
+            <span class="text-sm font-bold whitespace-nowrap">FLAGS CAPTURED</span>
+            <div class="flex-1 h-3 rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+                <div id="flag-progress-bar"
+                     class="h-full rounded-full transition-all duration-500 bg-[var(--primary)]"
+                     style="width:0%">
+                </div>
+            </div>
+            <span id="flag-progress-text" class="text-sm text-black/50 dark:text-white/50 whitespace-nowrap">0 / 0</span>
+        </div>
+
+        <div class="font-bold text-xl mb-4">Hidden Flags</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10" data-pagefind-ignore>
+            {hiddenFlags.map((f) => (
+                <div class="flag-challenge rounded-xl border border-[var(--line-divider)] p-4 transition"
+                     data-flag={f.flag}>
+                    <div class="flex items-center justify-between gap-3">
+                        <code class="flag-text font-bold">{f.flag}</code>
+                        <span class="state text-sm font-bold">?</span>
+                    </div>
+                    <p class="text-sm text-black/50 dark:text-white/50 mt-2 mb-2">{f.hint}</p>
+                    <a class="link text-[var(--primary)] text-sm font-medium"
+                       href={getPostUrlBySlug(f.post)}>open the writeup →</a>
+                </div>
+            ))}
+        </div>
+
+        <div class="font-bold text-xl mb-4">Achievements</div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4" data-pagefind-ignore>
+            {ACHIEVEMENTS.map((a) => (
+                <div class="achievement rounded-xl border border-[var(--line-divider)] p-4 flex gap-3 transition opacity-60"
+                     data-id={a.id}>
+                    <div class="badge flex-shrink-0 w-11 h-11 rounded-full flex items-center justify-center
+                        bg-black/5 dark:bg-white/10 text-[var(--primary)]">
+                        ★
+                    </div>
+                    <div>
+                        <div class="font-bold">{a.title}</div>
+                        <div class="text-sm text-black/50 dark:text-white/50 mt-1">{a.desc}</div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+</MainGridLayout>
+
+<style is:global>
+    #trophy-case kbd {
+        display: inline-block;
+        padding: 0.05rem 0.4rem;
+        border-radius: 0.3rem;
+        border-bottom-width: 2px;
+        border-style: solid;
+        background: var(--btn-regular-bg);
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        font-size: 0.78rem;
+    }
+</style>
+
+<style>
+    .flag-challenge.captured {
+        border-color: oklch(0.7 0.16 var(--hue) / 0.6);
+        background: oklch(0.72 0.16 var(--hue) / 0.08);
+    }
+
+    .flag-challenge.captured .state {
+        color: oklch(0.75 0.17 var(--hue));
+    }
+
+    .achievement.unlocked {
+        opacity: 1;
+        border-color: oklch(0.7 0.16 var(--hue) / 0.55);
+    }
+
+    .achievement.unlocked .badge {
+        background: oklch(0.72 0.16 var(--hue) / 0.18);
+    }
+</style>
+
+<script>
+import { getUnlockedAchievements } from "../utils/achievements";
+
+const carrier = document.getElementById("config-carrier");
+const totalFlags = Number.parseInt(carrier?.dataset.totalFlags || "0", 10);
+
+let foundFlags: string[] = [];
+try {
+	const raw = localStorage.getItem("lajin-found-flags");
+	foundFlags = raw ? (JSON.parse(raw) as string[]) : [];
+} catch {
+	foundFlags = [];
+}
+
+// flags progress
+const bar = document.getElementById("flag-progress-bar");
+const text = document.getElementById("flag-progress-text");
+if (bar && text) {
+	const pct = totalFlags > 0 ? Math.min(100, (foundFlags.length / totalFlags) * 100) : 0;
+	bar.style.width = `${pct}%`;
+	text.textContent = `${foundFlags.length} / ${totalFlags}`;
+}
+
+// mark captured flags
+document.querySelectorAll<HTMLElement>(".flag-challenge").forEach((card) => {
+	const flag = card.dataset.flag;
+	if (!flag || !foundFlags.includes(flag)) return;
+	card.classList.add("captured");
+	const state = card.querySelector(".state");
+	if (state) state.textContent = "captured";
+});
+
+// mark unlocked achievements
+const unlocked = getUnlockedAchievements();
+document.querySelectorAll<HTMLElement>(".achievement").forEach((card) => {
+	if (unlocked.includes(card.dataset.id || "")) {
+		card.classList.add("unlocked");
+	}
+});
+</script>
