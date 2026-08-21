@@ -5,9 +5,19 @@ const audioUrl = url("/audio/paul-atreides.mp3");
 ---
 
 <div id="welcome-gate" class="welcome-gate welcome-gate-closed" aria-hidden="true">
+    <canvas id="welcome-gate-rain" class="welcome-gate-rain" aria-hidden="true"></canvas>
+    <div class="welcome-gate-scanlines" aria-hidden="true"></div>
+
     <div class="welcome-gate-card">
-        <div class="welcome-gate-title">LAJIN</div>
+        <div class="welcome-gate-glitch" data-text="LAJIN">LAJIN</div>
         <div class="welcome-gate-sub">restricted area — identify yourself</div>
+
+        <div class="welcome-gate-boot">
+            <div class="boot-line"><span class="ok">[ ok ]</span> secure channel established</div>
+            <div class="boot-line"><span class="ok">[ ok ]</span> encryption handshake complete</div>
+            <div class="boot-line"><span class="wait">[ .. ]</span> identity verification required</div>
+        </div>
+
         <form id="welcome-gate-form" autocomplete="off">
             <span class="welcome-gate-prompt">➜</span>
             <span class="welcome-gate-host">guest@lajin:~$</span>
@@ -20,9 +30,13 @@ const audioUrl = url("/audio/paul-atreides.mp3");
                 placeholder="…"
             />
         </form>
+
         <div id="welcome-gate-output" aria-live="polite"></div>
-        <div class="welcome-gate-hint">type <kbd>whoami</kbd> and press Enter</div>
-        <button type="button" id="welcome-gate-skip">[ skip ]</button>
+
+        <div class="welcome-gate-footer">
+            <span class="welcome-gate-hint">type <kbd>whoami</kbd> and press Enter</span>
+            <button type="button" id="welcome-gate-skip">[ skip ]</button>
+        </div>
     </div>
 </div>
 
@@ -37,8 +51,8 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        background: var(--page-bg);
-        transition: opacity 0.45s ease;
+        background: #050805;
+        transition: opacity 0.5s ease;
     }
 
     .welcome-gate.welcome-gate-closed {
@@ -50,51 +64,149 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         pointer-events: none;
     }
 
-    .welcome-gate-card {
-        width: min(30rem, 100%);
-        border-radius: 0.9rem;
-        padding: 1.6rem 1.5rem 1.2rem;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        box-shadow: 0 24px 80px oklch(0 0 0 / 0.35);
-        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+    .welcome-gate-rain {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
     }
 
-    .welcome-gate-title {
-        font-size: 1.7rem;
+    .welcome-gate-scanlines {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+            to bottom,
+            transparent 0,
+            transparent 2px,
+            rgba(0, 0, 0, 0.22) 2px,
+            rgba(0, 0, 0, 0.22) 4px
+        );
+    }
+
+    .welcome-gate-card {
+        position: relative;
+        z-index: 1;
+        width: min(32rem, 100%);
+        border-radius: 0.9rem;
+        padding: 1.8rem 1.6rem 1.1rem;
+        background: oklch(0.13 0.02 var(--hue) / 0.92);
+        border: 1px solid oklch(0.55 0.12 var(--hue) / 0.45);
+        box-shadow:
+            0 24px 80px oklch(0 0 0 / 0.6),
+            0 0 42px oklch(0.7 0.16 var(--hue) / 0.22);
+        font-family: "JetBrains Mono Variable", ui-monospace, monospace;
+        backdrop-filter: blur(4px);
+    }
+
+    .welcome-gate-glitch {
+        position: relative;
+        font-size: 2.5rem;
         font-weight: 800;
-        letter-spacing: 0.35em;
-        color: oklch(0.75 0.14 var(--hue));
+        letter-spacing: 0.38em;
         text-align: center;
+        color: oklch(0.85 0.17 var(--hue));
+        text-shadow: 0 0 18px oklch(0.75 0.18 var(--hue) / 0.65);
+        margin-right: -0.38em;
+    }
+
+    .welcome-gate-glitch::before,
+    .welcome-gate-glitch::after {
+        content: attr(data-text);
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0;
+    }
+
+    .welcome-gate-glitch::before {
+        color: oklch(0.85 0.19 145);
+        animation: gate-glitch-a 3.2s infinite steps(1);
+    }
+
+    .welcome-gate-glitch::after {
+        color: oklch(0.82 0.18 220);
+        animation: gate-glitch-b 3.2s infinite steps(1);
+    }
+
+    @keyframes gate-glitch-a {
+        0%, 90%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
+        91% { opacity: 0.9; transform: translate(-4px, 2px); clip-path: inset(10% 0 62% 0); }
+        93% { opacity: 0.9; transform: translate(4px, -2px); clip-path: inset(58% 0 12% 0); }
+        95% { opacity: 0; }
+    }
+
+    @keyframes gate-glitch-b {
+        0%, 89%, 100% { opacity: 0; transform: translate(0, 0); clip-path: inset(0); }
+        90% { opacity: 0.85; transform: translate(5px, -1px); clip-path: inset(40% 0 34% 0); }
+        92% { opacity: 0.85; transform: translate(-5px, 2px); clip-path: inset(6% 0 74% 0); }
+        94% { opacity: 0; }
     }
 
     .welcome-gate-sub {
-        margin-top: 0.4rem;
+        margin-top: 0.5rem;
         text-align: center;
         font-size: 0.72rem;
-        letter-spacing: 0.12em;
+        letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: oklch(0.55 0.02 var(--hue));
+        color: oklch(0.68 0.03 var(--hue));
+    }
+
+    .welcome-gate-boot {
+        margin-top: 1.25rem;
+        padding: 0.75rem 0.9rem;
+        border-radius: 0.55rem;
+        border: 1px solid oklch(0.4 0.04 var(--hue) / 0.5);
+        background: oklch(0.1 0.01 var(--hue) / 0.8);
+        font-size: 0.76rem;
+        line-height: 1.7;
+        color: oklch(0.78 0.03 var(--hue));
+    }
+
+    .boot-line {
+        opacity: 0;
+        animation: boot-in 0.35s ease forwards;
+    }
+
+    .boot-line:nth-child(1) { animation-delay: 0.15s; }
+    .boot-line:nth-child(2) { animation-delay: 0.55s; }
+    .boot-line:nth-child(3) { animation-delay: 0.95s; }
+
+    .boot-line .ok {
+        color: oklch(0.8 0.17 145);
+        font-weight: 700;
+    }
+
+    .boot-line .wait {
+        color: oklch(0.82 0.16 85);
+        font-weight: 700;
+    }
+
+    @keyframes boot-in {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 
     #welcome-gate-form {
-        margin-top: 1.5rem;
+        margin-top: 1.15rem;
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.65rem 0.8rem;
+        padding: 0.7rem 0.85rem;
         border-radius: 0.6rem;
-        border: 1px solid oklch(0.55 0.05 var(--hue) / 0.4);
-        background: oklch(0.16 0.015 var(--hue));
+        border: 1px solid oklch(0.55 0.08 var(--hue) / 0.5);
+        background: oklch(0.09 0.01 var(--hue));
+        box-shadow: inset 0 0 18px oklch(0 0 0 / 0.45);
     }
 
     .welcome-gate-prompt {
-        color: oklch(0.78 0.16 145);
+        color: oklch(0.8 0.17 145);
         font-weight: 700;
     }
 
     .welcome-gate-host {
-        color: oklch(0.85 0.03 var(--hue));
+        color: oklch(0.88 0.03 var(--hue));
         white-space: nowrap;
     }
 
@@ -104,61 +216,87 @@ const audioUrl = url("/audio/paul-atreides.mp3");
         border: none;
         outline: none;
         background: transparent;
-        color: oklch(0.92 0.02 var(--hue));
+        color: oklch(0.94 0.02 var(--hue));
         font-family: inherit;
         font-size: 1rem;
-        caret-color: oklch(0.78 0.16 145);
+        caret-color: oklch(0.8 0.17 145);
     }
 
     #welcome-gate-output {
-        min-height: 1.3rem;
+        min-height: 1.35rem;
         margin-top: 0.6rem;
         font-size: 0.8rem;
-        color: #ff6b6b;
         white-space: pre-wrap;
     }
 
-    .welcome-gate-hint {
+    #welcome-gate-output.err {
+        color: #ff6b6b;
+    }
+
+    #welcome-gate-output.ok-line {
+        color: oklch(0.82 0.18 145);
+        font-weight: 700;
+    }
+
+    .welcome-gate-footer {
         margin-top: 0.9rem;
-        text-align: center;
-        font-size: 0.78rem;
-        color: oklch(0.55 0.02 var(--hue));
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+    }
+
+    .welcome-gate-hint {
+        font-size: 0.76rem;
+        color: oklch(0.6 0.02 var(--hue));
     }
 
     .welcome-gate-hint kbd {
         display: inline-block;
         padding: 0.05rem 0.4rem;
         border-radius: 0.3rem;
-        border: 1px solid oklch(0.6 0.04 var(--hue) / 0.5);
+        border: 1px solid oklch(0.6 0.06 var(--hue) / 0.55);
         border-bottom-width: 2px;
-        background: oklch(0.95 0.01 var(--hue));
+        background: oklch(0.22 0.02 var(--hue));
         font-family: inherit;
         font-size: 0.74rem;
         font-weight: 700;
-    }
-
-    :global(:root.dark) .welcome-gate-hint kbd {
-        background: oklch(0.28 0.02 var(--hue));
+        color: oklch(0.85 0.05 var(--hue));
     }
 
     #welcome-gate-skip {
-        display: block;
-        margin: 1rem auto 0;
         border: none;
         background: transparent;
         cursor: pointer;
         font-family: inherit;
         font-size: 0.74rem;
-        color: oklch(0.55 0.02 var(--hue));
+        color: oklch(0.52 0.02 var(--hue));
+        transition: color 0.2s ease;
     }
 
     #welcome-gate-skip:hover {
-        color: oklch(0.75 0.14 var(--hue));
+        color: oklch(0.8 0.14 var(--hue));
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .welcome-gate-glitch::before,
+        .welcome-gate-glitch::after {
+            animation: none;
+            opacity: 0;
+        }
+
+        .boot-line {
+            animation: none;
+            opacity: 1;
+        }
     }
 </style>
 
 <script>
+import { startMatrixRain } from "../utils/matrix-rain";
+
 const gate = document.getElementById("welcome-gate");
+const rainCanvas = document.getElementById("welcome-gate-rain") as HTMLCanvasElement | null;
 const form = document.getElementById("welcome-gate-form") as HTMLFormElement | null;
 const input = document.getElementById("welcome-gate-input") as HTMLInputElement | null;
 const output = document.getElementById("welcome-gate-output");
@@ -166,7 +304,7 @@ const skipBtn = document.getElementById("welcome-gate-skip");
 const audio = document.getElementById("welcome-sound-audio") as HTMLAudioElement | null;
 const toggle = document.getElementById("welcome-sound-toggle");
 const MUTED_KEY = "welcome-sound-muted";
-const VOLUME = 0.4;
+const VOLUME = 1;
 
 function isMuted(): boolean {
 	return localStorage.getItem(MUTED_KEY) === "1";
@@ -182,15 +320,32 @@ function playClip() {
 	audio.play().catch(() => {});
 }
 
-function closeGate(playSound: boolean) {
-	if (!gate || gate.classList.contains("welcome-gate-closed")) return;
-	if (playSound) playClip();
-	gate.classList.add("welcome-gate-fading");
-	window.setTimeout(() => {
-		gate.classList.add("welcome-gate-closed");
-		gate.classList.remove("welcome-gate-fading");
-	}, 450);
-	document.documentElement.style.overflow = "";
+let stopRain: (() => void) | null = null;
+
+function startRain() {
+	if (
+		!rainCanvas ||
+		stopRain ||
+		window.matchMedia("(prefers-reduced-motion: reduce)").matches
+	) {
+		return;
+	}
+	const hue = getComputedStyle(document.documentElement)
+		.getPropertyValue("--hue")
+		.trim() || "24";
+	stopRain = startMatrixRain(rainCanvas, {
+		fontSize: 15,
+		color: `oklch(0.72 0.14 ${hue})`,
+		trailAlpha: 0.1,
+		speed: 0.8,
+	});
+}
+
+function stopRains() {
+	if (stopRain) {
+		stopRain();
+		stopRain = null;
+	}
 }
 
 if (audio && gate && form && input && output && skipBtn) {
@@ -212,26 +367,50 @@ if (audio && gate && form && input && output && skipBtn) {
 	syncToggle();
 
 	if (!isMuted()) {
-		// Open the identification gate.
 		gate.classList.remove("welcome-gate-closed");
 		gate.setAttribute("aria-hidden", "false");
 		document.documentElement.style.overflow = "hidden";
+		startRain();
 		input.focus();
 
 		form.addEventListener("submit", (event) => {
 			event.preventDefault();
 			const value = input.value.trim().toLowerCase();
 			if (value === "whoami") {
-				closeGate(true);
+				output.classList.remove("err");
+				output.classList.add("ok-line");
+				output.textContent = "[ ok ] identity confirmed — welcome back";
+				playClip();
+				window.setTimeout(() => {
+					gate.classList.add("welcome-gate-fading");
+					window.setTimeout(() => {
+						gate.classList.add("welcome-gate-closed");
+						gate.classList.remove("welcome-gate-fading");
+						stopRains();
+					}, 500);
+					document.documentElement.style.overflow = "";
+				}, 650);
 				return;
 			}
+			output.classList.add("err");
 			output.textContent = value
 				? `command not found: ${value} — try \`whoami\``
 				: "silent treatment won't work — type `whoami`";
 			input.select();
 		});
 
-		skipBtn.addEventListener("click", () => closeGate(false));
+		const dismiss = () => {
+			if (gate.classList.contains("welcome-gate-closed")) return;
+			gate.classList.add("welcome-gate-fading");
+			window.setTimeout(() => {
+				gate.classList.add("welcome-gate-closed");
+				gate.classList.remove("welcome-gate-fading");
+				stopRains();
+			}, 500);
+			document.documentElement.style.overflow = "";
+		};
+
+		skipBtn.addEventListener("click", dismiss);
 
 		document.addEventListener(
 			"keydown",
@@ -240,7 +419,7 @@ if (audio && gate && form && input && output && skipBtn) {
 					event.key === "Escape" &&
 					!gate.classList.contains("welcome-gate-closed")
 				) {
-					closeGate(false);
+					dismiss();
 				}
 			},
 			{ once: true },
