@@ -3,6 +3,7 @@ import type { CollectionEntry } from "astro:content";
 import { Icon } from "astro-icon/components";
 import { profileConfig, siteConfig } from "../config";
 import { url } from "../utils/url-utils";
+import HeroParticles from "./HeroParticles.astro";
 import ImageWrapper from "./misc/ImageWrapper.astro";
 
 interface Props {
@@ -18,7 +19,8 @@ const initials = profileConfig.name
 	.join("");
 ---
 
-<section class="home-hero card-base onload-animation mb-4 overflow-hidden">
+<section class="home-hero card-base onload-animation mb-4 overflow-hidden has-particles">
+    <HeroParticles></HeroParticles>
     <div class="home-hero-traces" aria-hidden="true">
         <span></span>
         <span></span>

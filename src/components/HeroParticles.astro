@@ -1,0 +1,138 @@
+---
+// Three.js-style particle network — zero dependencies, pure canvas.
+---
+
+<div class="hero-particles" aria-hidden="true">
+    <canvas></canvas>
+</div>
+
+<style>
+    .hero-particles {
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        border-radius: inherit;
+    }
+
+    .hero-particles canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* lift the real content above the field */
+    .hero-particles ~ * {
+        position: relative;
+        z-index: 1;
+    }
+</style>
+
+<script>
+const wrap = document.querySelector(".hero-particles");
+const canvas = wrap ? wrap.querySelector("canvas") : null;
+
+if (
+	wrap &&
+	canvas &&
+	!window.matchMedia("(prefers-reduced-motion: reduce)").matches
+) {
+	const ctx = canvas.getContext("2d");
+	let W = 0;
+	let H = 0;
+
+	const resize = () => {
+		const rect = wrap.getBoundingClientRect();
+		const dpr = Math.min(window.devicePixelRatio || 1, 2);
+		W = rect.width;
+		H = rect.height;
+		canvas.width = Math.floor(W * dpr);
+		canvas.height = Math.floor(H * dpr);
+		if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	};
+	resize();
+	window.addEventListener("resize", resize);
+
+	const COUNT = Math.min(80, Math.floor((window.innerWidth || 900) / 14));
+	const pts = Array.from({ length: COUNT }, () => ({
+		x: Math.random(),
+		y: Math.random(),
+		vx: (Math.random() - 0.5) * 0.0009,
+		vy: (Math.random() - 0.5) * 0.0009,
+		r: Math.random() * 1.3 + 0.5,
+	}));
+
+	let mx = -9999;
+	let my = -9999;
+	window.addEventListener("pointermove", (event) => {
+		const rect = canvas.getBoundingClientRect();
+		mx = event.clientX - rect.left;
+		my = event.clientY - rect.top;
+	});
+
+	const LINK_DIST = 110;
+	const MOUSE_RADIUS = 170;
+
+	const frame = () => {
+		requestAnimationFrame(frame);
+		if (!ctx || document.hidden) return;
+
+		ctx.clearRect(0, 0, W, H);
+
+		for (const p of pts) {
+			p.x += p.vx;
+			p.y += p.vy;
+
+			const dx = mx - p.x * W;
+			const dy = my - p.y * H;
+			const d = Math.hypot(dx, dy);
+			if (d < MOUSE_RADIUS && d > 1) {
+				p.x += (dx / d) * 0.00045;
+				p.y += (dy / d) * 0.00045;
+			}
+
+			if (p.x < -0.02) p.x = 1.02;
+			else if (p.x > 1.02) p.x = -0.02;
+			if (p.y < -0.02) p.y = 1.02;
+			else if (p.y > 1.02) p.y = -0.02;
+
+			ctx.globalAlpha = 0.55;
+			ctx.fillStyle = "#fff";
+			ctx.beginPath();
+			ctx.arc(p.x * W, p.y * H, p.r, 0, Math.PI * 2);
+			ctx.fill();
+		}
+
+		for (let i = 0; i < COUNT; i++) {
+			for (let j = i + 1; j < COUNT; j++) {
+				const ax = pts[i].x * W;
+				const ay = pts[i].y * H;
+				const bx = pts[j].x * W;
+				const by = pts[j].y * H;
+				const d = Math.hypot(ax - bx, ay - by);
+				if (d < LINK_DIST) {
+					ctx.globalAlpha = (1 - d / LINK_DIST) * 0.18;
+					ctx.strokeStyle = "#fff";
+					ctx.lineWidth = 0.6;
+					ctx.beginPath();
+					ctx.moveTo(ax, ay);
+					ctx.lineTo(bx, by);
+					ctx.stroke();
+				}
+			}
+		}
+
+		if (mx > -1) {
+			ctx.globalAlpha = 0.06;
+			ctx.fillStyle = "#fff";
+			ctx.beginPath();
+			ctx.arc(mx, my, 64, 0, Math.PI * 2);
+			ctx.fill();
+		}
+
+		ctx.globalAlpha = 1;
+	};
+	requestAnimationFrame(frame);
+}
+</script>

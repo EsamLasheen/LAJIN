@@ -1,4 +1,5 @@
 <div class="brand-cursor" aria-hidden="true">
+    <canvas class="brand-cursor-trail"></canvas>
     <div class="brand-cursor-mark"></div>
     <div class="brand-cursor-ring"></div>
 </div>
@@ -12,12 +13,15 @@
     const cursor = document.querySelector(".brand-cursor");
     const mark = document.querySelector(".brand-cursor-mark");
     const ring = document.querySelector(".brand-cursor-ring");
-    if (!cursor || !mark || !ring) return;
+    const trail = document.querySelector(".brand-cursor-trail");
+    if (!cursor || !mark || !ring || !trail) return;
 
     let x = window.innerWidth / 2;
     let y = window.innerHeight / 2;
     let ringX = x;
     let ringY = y;
+    let lastSpawnX = x;
+    let lastSpawnY = y;
 
     cursor.classList.add("is-ready");
     mark.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
@@ -28,27 +32,81 @@
         cursor.classList.toggle("is-interactive", active);
     };
 
+    // ---- ink trail -----------------------------------------------------
+    const ctx = trail.getContext("2d");
+    const specks = [];
+    const MAX_SPECKS = 90;
+
+    const resizeTrail = () => {
+        trail.width = window.innerWidth;
+        trail.height = window.innerHeight;
+    };
+    resizeTrail();
+    window.addEventListener("resize", resizeTrail);
+
+    const spawnSpeck = (px, py) => {
+        if (specks.length >= MAX_SPECKS) specks.shift();
+        specks.push({
+            x: px + (Math.random() - 0.5) * 10,
+            y: py + (Math.random() - 0.5) * 10,
+            r: Math.random() * 1.6 + 0.4,
+            vx: (Math.random() - 0.5) * 0.7,
+            vy: (Math.random() - 0.5) * 0.7 - 0.15,
+            life: 1,
+            decay: Math.random() * 0.02 + 0.012,
+        });
+    };
+
     window.addEventListener("pointermove", (event) => {
         x = event.clientX;
         y = event.clientY;
         mark.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%)`;
         setInteractive(event.target);
+
+        const dist = Math.hypot(x - lastSpawnX, y - lastSpawnY);
+        if (dist > 9) {
+            lastSpawnX = x;
+            lastSpawnY = y;
+            spawnSpeck(x, y);
+            if (dist > 26) spawnSpeck((x + lastSpawnX) / 2, (y + lastSpawnY) / 2);
+        }
     }, { passive: true });
+
+    const drawTrail = () => {
+        if (ctx) {
+            ctx.clearRect(0, 0, trail.width, trail.height);
+            for (let i = specks.length - 1; i >= 0; i--) {
+                const s = specks[i];
+                s.x += s.vx;
+                s.y += s.vy;
+                s.life -= s.decay;
+                if (s.life <= 0) {
+                    specks.splice(i, 1);
+                    continue;
+                }
+                ctx.globalAlpha = s.life * 0.55;
+                ctx.fillStyle = "#fff";
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r * s.life, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+        }
+
+        ringX += (x - ringX) * 0.18;
+        ringY += (y - ringY) * 0.18;
+        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+        requestAnimationFrame(drawTrail);
+    };
+    drawTrail();
 
     window.addEventListener("pointerdown", () => {
         cursor.classList.add("is-pressed");
+        for (let i = 0; i < 6; i++) spawnSpeck(x, y);
     }, { passive: true });
 
     window.addEventListener("pointerup", () => {
         cursor.classList.remove("is-pressed");
     }, { passive: true });
-
-    const frame = () => {
-        ringX += (x - ringX) * 0.18;
-        ringY += (y - ringY) * 0.18;
-        ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
-        requestAnimationFrame(frame);
-    };
-    frame();
 })();
 </script>
