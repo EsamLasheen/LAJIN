@@ -291,6 +291,47 @@
     display: block;
 }
 
+/* ── Paper-light: cursor as a light source over engraved paper ── */
+.card-base {
+    position: relative;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .card-base::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 1;
+        border-radius: inherit;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.45s ease;
+        background:
+            radial-gradient(
+                260px circle at var(--lx, 50%) var(--ly, 0%),
+                rgba(255, 255, 255, 0.07),
+                transparent 65%
+            ),
+            radial-gradient(
+                420px circle at var(--lx, 50%) var(--ly, 0%),
+                rgba(0, 0, 0, 0.05),
+                transparent 70%
+            );
+    }
+
+    :root.dark .card-base::before {
+        background: radial-gradient(
+            300px circle at var(--lx, 50%) var(--ly, 0%),
+            rgba(255, 255, 255, 0.09),
+            transparent 62%
+        );
+    }
+
+    .card-base.paper-lit::before {
+        opacity: 1;
+    }
+}
+
 #navbar .card-base {
     box-shadow: 0 16px 45px rgba(15, 23, 42, 0.10);
 }

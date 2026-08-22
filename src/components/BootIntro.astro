@@ -62,6 +62,10 @@ function dismiss() {
 	window.setTimeout(() => intro.classList.add("boot-intro-hidden"), 420);
 	window.removeEventListener("pointerdown", dismiss);
 	window.removeEventListener("keydown", dismiss);
+	// don't unlock scroll if the whoami gate is open underneath
+	const gate = document.getElementById("welcome-gate");
+	const gateOpen = gate && !gate.classList.contains("welcome-gate-closed");
+	if (!gateOpen) document.documentElement.style.overflow = "";
 }
 
 if (
@@ -76,7 +80,11 @@ if (
 	window.addEventListener("keydown", dismiss);
 	window.setTimeout(() => {
 		dismiss();
-		document.documentElement.style.overflow = "";
 	}, 1250);
+	window.setTimeout(() => {
+		const gate = document.getElementById("welcome-gate");
+		const gateOpen = gate && !gate.classList.contains("welcome-gate-closed");
+		if (!gateOpen) document.documentElement.style.overflow = "";
+	}, 1400);
 }
 </script>

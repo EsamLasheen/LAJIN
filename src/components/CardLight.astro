@@ -1,0 +1,57 @@
+<script>
+// Paper-light: the cursor acts as a light source hovering over engraved paper.
+// Sets --lx/--ky on the card under the pointer; CSS renders the sheen.
+const fine =
+	window.matchMedia("(pointer: fine)").matches &&
+	!window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+function isTarget(card: Element): boolean {
+	return !card.closest(
+		"#navbar, #top-row, #navbar-wrapper, #sidebar, .lajin-shell, .welcome-gate, #boot-intro, .float-panel",
+	);
+}
+
+if (fine) {
+	let current: HTMLElement | null = null;
+
+	document.addEventListener(
+		"pointermove",
+		(event) => {
+			if (current && !document.contains(current)) current = null;
+
+			const target =
+				event.target instanceof Element
+					? event.target.closest(".card-base")
+					: null;
+			const card =
+				target && isTarget(target) ? (target as HTMLElement) : null;
+
+			if (card !== current) {
+				if (current) current.classList.remove("paper-lit");
+				current = card;
+				if (current) current.classList.add("paper-lit");
+			}
+
+			if (!current) return;
+
+			const rect = current.getBoundingClientRect();
+			current.style.setProperty(
+				"--lx",
+				`${(((event.clientX - rect.left) / rect.width) * 100).toFixed(1)}%`,
+			);
+			current.style.setProperty(
+				"--ly",
+				`${(((event.clientY - rect.top) / rect.height) * 100).toFixed(1)}%`,
+			);
+		},
+		{ passive: true },
+	);
+
+	document.addEventListener("pointerleave", () => {
+		if (current) {
+			current.classList.remove("paper-lit");
+			current = null;
+		}
+	});
+}
+</script>
