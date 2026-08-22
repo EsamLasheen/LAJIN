@@ -49,7 +49,7 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         align-items: center;
         justify-content: center;
         padding: 1rem;
-        background: oklch(0.08 0.01 var(--hue) / 0.55);
+        background: oklch(0.08 0 0 / 0.55);
         backdrop-filter: blur(6px);
         transition: opacity 0.18s ease, transform 0.18s ease;
     }
@@ -64,8 +64,8 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         flex-direction: column;
         border-radius: 0.9rem;
         overflow: hidden;
-        border: 1px solid oklch(0.5 0.08 var(--hue) / 0.5);
-        background: oklch(0.14 0.015 var(--hue) / 0.97);
+        border: 1px solid oklch(0.5 0 0 / 0.5);
+        background: oklch(0.14 0 0 / 0.97);
         box-shadow: 0 24px 80px oklch(0 0 0 / 0.55);
         font-family: "JetBrains Mono Variable", ui-monospace, monospace;
     }
@@ -74,8 +74,8 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         align-items: center;
         gap: 0.45rem;
         padding: 0.55rem 0.85rem;
-        background: oklch(0.2 0.02 var(--hue));
-        border-bottom: 1px solid oklch(0.35 0.03 var(--hue) / 0.6);
+        background: oklch(0.2 0 0);
+        border-bottom: 1px solid oklch(0.35 0 0 / 0.6);
         user-select: none;
     }
     .lajin-shell-dot {
@@ -113,17 +113,17 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         padding: 0.9rem 1rem;
         font-size: 0.82rem;
         line-height: 1.55;
-        color: oklch(0.87 0.03 var(--hue));
+        color: oklch(0.87 0 0);
         white-space: pre-wrap;
         overflow-wrap: anywhere;
     }
     .lajin-shell-output :global(a) {
-        color: oklch(0.78 0.13 var(--hue));
+        color: oklch(0.78 0 0);
     }
-    .lajin-shell-cmd { color: oklch(0.8 0.16 145); }
+    .lajin-shell-cmd { color: oklch(0.8 0 0); }
     .lajin-shell-err { color: #ff6b6b; }
     .lajin-shell-dim { color: rgba(255, 255, 255, 0.45); }
-    .lajin-shell-accent { color: oklch(0.78 0.14 var(--hue)); font-weight: 700; }
+    .lajin-shell-accent { color: oklch(0.78 0 0); font-weight: 700; }
     .lajin-shell-rain {
         position: absolute;
         inset: 0;
@@ -140,11 +140,11 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         align-items: center;
         gap: 0.55rem;
         padding: 0.65rem 1rem;
-        border-top: 1px solid oklch(0.35 0.03 var(--hue) / 0.6);
-        background: oklch(0.17 0.015 var(--hue));
+        border-top: 1px solid oklch(0.35 0 0 / 0.6);
+        background: oklch(0.17 0 0);
     }
     .lajin-shell-prompt {
-        color: oklch(0.78 0.16 145);
+        color: oklch(0.78 0 0);
         font-weight: 700;
     }
     .lajin-shell-input {
@@ -152,10 +152,10 @@ const flagPosts = Object.fromEntries(hiddenFlags.map((f) => [f.flag, f.post]));
         border: none;
         outline: none;
         background: transparent;
-        color: oklch(0.92 0.02 var(--hue));
+        color: oklch(0.92 0 0);
         font-family: inherit;
         font-size: 0.85rem;
-        caret-color: oklch(0.78 0.16 145);
+        caret-color: oklch(0.78 0 0);
     }
 </style>
 

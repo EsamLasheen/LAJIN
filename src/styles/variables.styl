@@ -5,8 +5,8 @@ white(a)
 black(a)
   rgba(0, 0, 0, a)
 
-rainbow-light = linear-gradient(to right, oklch(0.80 0.10 0), oklch(0.80 0.10 30), oklch(0.80 0.10 60), oklch(0.80 0.10 90), oklch(0.80 0.10 120), oklch(0.80 0.10 150), oklch(0.80 0.10 180), oklch(0.80 0.10 210), oklch(0.80 0.10 240), oklch(0.80 0.10 270), oklch(0.80 0.10 300), oklch(0.80 0.10 330), oklch(0.80 0.10 360))
-rainbow-dark = linear-gradient(to right, oklch(0.70 0.10 0), oklch(0.70 0.10 30), oklch(0.70 0.10 60), oklch(0.70 0.10 90), oklch(0.70 0.10 120), oklch(0.70 0.10 150), oklch(0.70 0.10 180), oklch(0.70 0.10 210), oklch(0.70 0.10 240), oklch(0.70 0.10 270), oklch(0.70 0.10 300), oklch(0.70 0.10 330), oklch(0.70 0.10 360))
+rainbow-light = linear-gradient(to right, oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0), oklch(0.80 0 0))
+rainbow-dark = linear-gradient(to right, oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0), oklch(0.70 0 0))
 
 :root
   --radius-large 1rem
@@ -23,36 +23,36 @@ define(vars)
         {key}: value[1]
 
 define({
-  --primary: oklch(0.43 0.17 24) oklch(0.78 0.13 24)
-  --brand-red: oklch(0.34 0.16 24) oklch(0.37 0.16 24)
-  --brand-red-deep: oklch(0.25 0.13 24) oklch(0.18 0.10 24)
-  --accent: oklch(0.98 0.01 96) oklch(0.96 0.012 96)
-  --danger-accent: oklch(0.58 0.19 24) oklch(0.70 0.17 24)
-  --page-bg: oklch(0.965 0.012 36) oklch(0.145 0.025 24)
-  --card-bg: oklch(0.995 0.006 36) oklch(0.205 0.035 24)
-  --card-border: oklch(0.84 0.045 24) oklch(0.36 0.07 24)
-  --card-shadow: 0 18px 45px rgba(63, 14, 18, 0.12) 0 20px 60px rgba(0, 0, 0, 0.30)
-  --panel-glow: oklch(0.54 0.17 24 / 0.18) oklch(0.58 0.17 24 / 0.24)
+  --primary: oklch(0.18 0 0) oklch(0.95 0 0)
+  --brand-red: oklch(0.26 0 0) oklch(0.23 0 0)
+  --brand-red-deep: oklch(0.17 0 0) oklch(0.13 0 0)
+  --accent: oklch(0.98 0 0) oklch(0.96 0 0)
+  --danger-accent: oklch(0.58 0 0) oklch(0.70 0 0)
+  --page-bg: oklch(0.965 0 0) oklch(0.145 0 0)
+  --card-bg: oklch(0.995 0 0) oklch(0.205 0 0)
+  --card-border: oklch(0.84 0 0) oklch(0.36 0 0)
+  --card-shadow: 0 18px 45px rgba(0, 0, 0, 0.12) 0 20px 60px rgba(0, 0, 0, 0.30)
+  --panel-glow: oklch(0.54 0 0 / 0.18) oklch(0.58 0 0 / 0.24)
 
-  --btn-content: oklch(0.36 0.15 24) oklch(0.96 0.012 96)
+  --btn-content: oklch(0.36 0 0) oklch(0.96 0 0)
 
-  --btn-regular-bg: oklch(0.95 0.035 24) oklch(0.28 0.09 24)
-  --btn-regular-bg-hover: oklch(0.90 0.055 24) oklch(0.34 0.11 24)
-  --btn-regular-bg-active: oklch(0.84 0.08 24) oklch(0.40 0.13 24)
+  --btn-regular-bg: oklch(0.95 0 0) oklch(0.28 0 0)
+  --btn-regular-bg-hover: oklch(0.90 0 0) oklch(0.34 0 0)
+  --btn-regular-bg-active: oklch(0.84 0 0) oklch(0.40 0 0)
 
-  --btn-plain-bg-hover: oklch(0.95 0.025 var(--hue)) oklch(0.30 0.035 var(--hue))
-  --btn-plain-bg-active: oklch(0.98 0.01 var(--hue)) oklch(0.27 0.025 var(--hue))
+  --btn-plain-bg-hover: oklch(0.95 0 0) oklch(0.30 0 0)
+  --btn-plain-bg-active: oklch(0.98 0 0) oklch(0.27 0 0)
 
-  --btn-card-bg-hover: oklch(0.98 0.005 var(--hue)) oklch(0.3 0.03 var(--hue))
-  --btn-card-bg-active: oklch(0.9 0.03 var(--hue)) oklch(0.35 0.035 var(--hue))
+  --btn-card-bg-hover: oklch(0.98 0 0) oklch(0.3 0 0)
+  --btn-card-bg-active: oklch(0.9 0 0) oklch(0.35 0 0)
 
   --enter-btn-bg: var(--btn-regular-bg)
   --enter-btn-bg-hover: var(--btn-regular-bg-hover)
   --enter-btn-bg-active: var(--btn-regular-bg-active)
 
-  --deep-text: oklch(0.25 0.02 var(--hue))
+  --deep-text: oklch(0.25 0 0)
 
-  --title-active: oklch(0.6 0.1 var(--hue))
+  --title-active: oklch(0.6 0 0)
 
   --line-divider: black(0.08) white(0.08)
 
@@ -61,18 +61,18 @@ define({
 
   --inline-code-bg: var(--btn-regular-bg)
   --inline-code-color: var(--btn-content)
-  --selection-bg: oklch(0.90 0.05 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --codeblock-selection: oklch(0.40 0.08 var(--hue))
-  --codeblock-bg: oklch(0.17 0.015 var(--hue)) oklch(0.17 0.015 var(--hue))
-  --codeblock-topbar-bg: oklch(0.3 0.02 var(--hue)) oklch(0.12 0.015 var(--hue))
+  --selection-bg: oklch(0.90 0 0) oklch(0.40 0 0)
+  --codeblock-selection: oklch(0.40 0 0)
+  --codeblock-bg: oklch(0.17 0 0) oklch(0.17 0 0)
+  --codeblock-topbar-bg: oklch(0.3 0 0) oklch(0.12 0 0)
 
   --license-block-bg: black(0.03) var(--codeblock-bg)
 
-  --link-underline: oklch(0.93 0.04 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --link-hover: oklch(0.95 0.025 var(--hue)) oklch(0.40 0.08 var(--hue))
-  --link-active: oklch(0.90 0.05 var(--hue)) oklch(0.35 0.07 var(--hue))
+  --link-underline: oklch(0.93 0 0) oklch(0.40 0 0)
+  --link-hover: oklch(0.95 0 0) oklch(0.40 0 0)
+  --link-active: oklch(0.90 0 0) oklch(0.35 0 0)
 
-  --float-panel-bg: oklch(0.99 0.006 178) oklch(0.18 0.022 205)
+  --float-panel-bg: oklch(0.99 0 0) oklch(0.18 0 0)
 
   --scrollbar-bg-light: black(0.4)
   --scrollbar-bg-hover-light: black(0.5)
@@ -91,15 +91,15 @@ define({
   --display-light-icon: 1 0
   --display-dark-icon: 0 1
 
-  --admonitions-color-tip: oklch(0.7 0.14 180) oklch(0.75 0.14 180)
-  --admonitions-color-note: oklch(0.7 0.14 250) oklch(0.75 0.14 250)
-  --admonitions-color-important: oklch(0.7 0.14 310) oklch(0.75 0.14 310)
-  --admonitions-color-warning: oklch(0.7 0.14 60) oklch(0.75 0.14 60)
-  --admonitions-color-caution: oklch(0.6 0.2 25) oklch(0.65 0.2 25)
+  --admonitions-color-tip: oklch(0.7 0 0) oklch(0.75 0 0)
+  --admonitions-color-note: oklch(0.7 0 0) oklch(0.75 0 0)
+  --admonitions-color-important: oklch(0.7 0 0) oklch(0.75 0 0)
+  --admonitions-color-warning: oklch(0.7 0 0) oklch(0.75 0 0)
+  --admonitions-color-caution: oklch(0.6 0 0) oklch(0.65 0 0)
 
-  --toc-badge-bg: oklch(0.89 0.050 var(--hue)) var(--btn-regular-bg)
-  --toc-btn-hover: oklch(0.926 0.015 var(--hue)) oklch(0.22 0.02 var(--hue))
-  --toc-btn-active: oklch(0.90 0.015 var(--hue)) oklch(0.25 0.02 var(--hue))
+  --toc-badge-bg: oklch(0.89 0 0) var(--btn-regular-bg)
+  --toc-btn-hover: oklch(0.926 0 0) oklch(0.22 0 0)
+  --toc-btn-active: oklch(0.90 0 0) oklch(0.25 0 0)
   --toc-width: calc((100vw - var(--page-width)) / 2 - 1rem)
-  --toc-item-active: oklch(0.70 0.13 var(--hue)) oklch(0.35 0.07 var(--hue))
+  --toc-item-active: oklch(0.70 0 0) oklch(0.35 0 0)
 })

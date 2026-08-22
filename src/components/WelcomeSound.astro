@@ -52,7 +52,7 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         justify-content: center;
         padding: 1rem;
         background:
-            radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.18 0.04 var(--hue) / 0.55), transparent 70%),
+            radial-gradient(ellipse 80% 60% at 50% 0%, oklch(0.18 0 0 / 0.55), transparent 70%),
             #0a0a0d;
         transition: opacity 0.5s ease;
     }
@@ -75,7 +75,7 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         transform: translate(-50%, -50%);
         background: radial-gradient(
             circle,
-            oklch(0.45 0.13 var(--hue) / 0.28),
+            oklch(0.45 0 0 / 0.28),
             transparent 62%
         );
         filter: blur(10px);
@@ -95,12 +95,12 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         background:
             repeating-linear-gradient(
                 to right,
-                oklch(0.5 0.05 var(--hue) / 0.055) 0 1px,
+                oklch(0.5 0 0 / 0.055) 0 1px,
                 transparent 1px 56px
             ),
             repeating-linear-gradient(
                 to bottom,
-                oklch(0.5 0.05 var(--hue) / 0.055) 0 1px,
+                oklch(0.5 0 0 / 0.055) 0 1px,
                 transparent 1px 56px
             );
         mask-image: radial-gradient(ellipse 75% 65% at 50% 45%, black 30%, transparent 100%);
@@ -112,11 +112,11 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         width: min(32rem, 100%);
         border-radius: 1rem;
         padding: 1.8rem 1.6rem 1.1rem;
-        background: oklch(0.14 0.02 var(--hue) / 0.88);
-        border: 1px solid oklch(0.6 0.1 var(--hue) / 0.35);
+        background: oklch(0.14 0 0 / 0.88);
+        border: 1px solid oklch(0.6 0 0 / 0.35);
         box-shadow:
             0 24px 80px oklch(0 0 0 / 0.55),
-            inset 0 1px 0 oklch(0.85 0.05 var(--hue) / 0.12);
+            inset 0 1px 0 oklch(0.85 0 0 / 0.12);
         font-family: "JetBrains Mono Variable", ui-monospace, monospace;
         backdrop-filter: blur(14px);
     }
@@ -127,8 +127,8 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         font-weight: 800;
         letter-spacing: 0.38em;
         text-align: center;
-        color: oklch(0.87 0.15 var(--hue));
-        text-shadow: 0 0 22px oklch(0.72 0.16 var(--hue) / 0.55);
+        color: oklch(0.87 0 0);
+        text-shadow: 0 0 22px oklch(0.72 0 0 / 0.55);
         margin-right: -0.38em;
     }
 
@@ -142,12 +142,12 @@ const audioUrl = url("/audio/paul-atreides.m4a");
     }
 
     .welcome-gate-glitch::before {
-        color: oklch(0.85 0.19 145);
+        color: oklch(0.85 0 0);
         animation: gate-glitch-a 4s infinite steps(1);
     }
 
     .welcome-gate-glitch::after {
-        color: oklch(0.82 0.18 220);
+        color: oklch(0.82 0 0);
         animation: gate-glitch-b 4s infinite steps(1);
     }
 
@@ -171,18 +171,18 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         font-size: 0.72rem;
         letter-spacing: 0.14em;
         text-transform: uppercase;
-        color: oklch(0.68 0.03 var(--hue));
+        color: oklch(0.68 0 0);
     }
 
     .welcome-gate-boot {
         margin-top: 1.25rem;
         padding: 0.75rem 0.9rem;
         border-radius: 0.55rem;
-        border: 1px solid oklch(0.42 0.04 var(--hue) / 0.45);
-        background: oklch(0.1 0.01 var(--hue) / 0.75);
+        border: 1px solid oklch(0.42 0 0 / 0.45);
+        background: oklch(0.1 0 0 / 0.75);
         font-size: 0.76rem;
         line-height: 1.7;
-        color: oklch(0.78 0.03 var(--hue));
+        color: oklch(0.78 0 0);
     }
 
     .boot-line {
@@ -195,12 +195,12 @@ const audioUrl = url("/audio/paul-atreides.m4a");
     .boot-line:nth-child(3) { animation-delay: 0.95s; }
 
     .boot-line .ok {
-        color: oklch(0.8 0.17 145);
+        color: oklch(0.8 0 0);
         font-weight: 700;
     }
 
     .boot-line .wait {
-        color: oklch(0.82 0.16 85);
+        color: oklch(0.82 0 0);
         font-weight: 700;
     }
 
@@ -216,26 +216,26 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         gap: 0.5rem;
         padding: 0.7rem 0.85rem;
         border-radius: 0.6rem;
-        border: 1px solid oklch(0.55 0.08 var(--hue) / 0.45);
-        background: oklch(0.09 0.01 var(--hue));
+        border: 1px solid oklch(0.55 0 0 / 0.45);
+        background: oklch(0.09 0 0);
         box-shadow: inset 0 0 18px oklch(0 0 0 / 0.4);
         transition: border-color 0.25s ease, box-shadow 0.25s ease;
     }
 
     #welcome-gate-form:focus-within {
-        border-color: oklch(0.68 0.14 var(--hue) / 0.7);
+        border-color: oklch(0.68 0 0 / 0.7);
         box-shadow:
             inset 0 0 18px oklch(0 0 0 / 0.4),
-            0 0 20px oklch(0.7 0.15 var(--hue) / 0.25);
+            0 0 20px oklch(0.7 0 0 / 0.25);
     }
 
     .welcome-gate-prompt {
-        color: oklch(0.8 0.17 145);
+        color: oklch(0.8 0 0);
         font-weight: 700;
     }
 
     .welcome-gate-host {
-        color: oklch(0.88 0.03 var(--hue));
+        color: oklch(0.88 0 0);
         white-space: nowrap;
     }
 
@@ -245,10 +245,10 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         border: none;
         outline: none;
         background: transparent;
-        color: oklch(0.94 0.02 var(--hue));
+        color: oklch(0.94 0 0);
         font-family: inherit;
         font-size: 1rem;
-        caret-color: oklch(0.8 0.17 145);
+        caret-color: oklch(0.8 0 0);
     }
 
     #welcome-gate-output {
@@ -263,7 +263,7 @@ const audioUrl = url("/audio/paul-atreides.m4a");
     }
 
     #welcome-gate-output.ok-line {
-        color: oklch(0.82 0.18 145);
+        color: oklch(0.82 0 0);
         font-weight: 700;
     }
 
@@ -277,20 +277,20 @@ const audioUrl = url("/audio/paul-atreides.m4a");
 
     .welcome-gate-hint {
         font-size: 0.76rem;
-        color: oklch(0.6 0.02 var(--hue));
+        color: oklch(0.6 0 0);
     }
 
     .welcome-gate-hint kbd {
         display: inline-block;
         padding: 0.05rem 0.4rem;
         border-radius: 0.3rem;
-        border: 1px solid oklch(0.6 0.06 var(--hue) / 0.5);
+        border: 1px solid oklch(0.6 0 0 / 0.5);
         border-bottom-width: 2px;
-        background: oklch(0.22 0.02 var(--hue));
+        background: oklch(0.22 0 0);
         font-family: inherit;
         font-size: 0.74rem;
         font-weight: 700;
-        color: oklch(0.85 0.05 var(--hue));
+        color: oklch(0.85 0 0);
     }
 
     #welcome-gate-skip {
@@ -299,12 +299,12 @@ const audioUrl = url("/audio/paul-atreides.m4a");
         cursor: pointer;
         font-family: inherit;
         font-size: 0.74rem;
-        color: oklch(0.52 0.02 var(--hue));
+        color: oklch(0.52 0 0);
         transition: color 0.2s ease;
     }
 
     #welcome-gate-skip:hover {
-        color: oklch(0.8 0.14 var(--hue));
+        color: oklch(0.8 0 0);
     }
 
     @media (prefers-reduced-motion: reduce) {

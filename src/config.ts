@@ -95,6 +95,24 @@ export const hiddenFlags: HiddenFlag[] = [
 		post: "0001_ottergram",
 		hint: "the otter knows something about access control… read carefully",
 	},
+	{
+		id: "tanuki",
+		flag: "flag{tanuki_profile_pwnage}",
+		post: "0003_tanuki",
+		hint: "the tanuki guards its profile closely — hover over what shouldn't be there",
+	},
+	{
+		id: "diceforge",
+		flag: "flag{roll_options_rce}",
+		post: "0004_diceforge",
+		hint: "roll the dice, but check what the options are really doing",
+	},
+	{
+		id: "cheesy-does-it",
+		flag: "flag{cheesy_otp_takeover}",
+		post: "0005_cheesy-does-it",
+		hint: "four digits, zero limits — something cheesy hides at the end of the writeup",
+	},
 ];
 
 /* Privacy-friendly analytics (optional).

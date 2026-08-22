@@ -17,7 +17,7 @@ export function startMatrixRain(
 	if (!ctx) return () => {};
 
 	const fontSize = options.fontSize ?? 16;
-	const color = options.color ?? "oklch(0.75 0.14 145)";
+	const color = options.color ?? "oklch(0.75 0 0)";
 	const trailAlpha = options.trailAlpha ?? 0.08;
 	const speed = options.speed ?? 1;
 

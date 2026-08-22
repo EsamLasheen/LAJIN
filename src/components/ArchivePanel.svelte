@@ -217,8 +217,8 @@ onMount(() => {
         gap: 0.35rem;
         padding: 0.25rem 0.7rem;
         border-radius: 999px;
-        border: 1px solid oklch(0.6 0.1 var(--hue) / 0.45);
-        background: oklch(0.72 0.14 var(--hue) / 0.1);
+        border: 1px solid oklch(0.6 0 0 / 0.45);
+        background: oklch(0.72 0 0 / 0.1);
         color: var(--primary);
         font-size: 0.82rem;
         font-weight: 600;
@@ -227,7 +227,7 @@ onMount(() => {
     }
 
     .filter-chip:hover {
-        background: oklch(0.72 0.14 var(--hue) / 0.2);
+        background: oklch(0.72 0 0 / 0.2);
     }
 
     .filter-chip:active {
