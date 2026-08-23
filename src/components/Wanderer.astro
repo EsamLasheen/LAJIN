@@ -1,0 +1,125 @@
+---
+import { url } from "../utils/url-utils";
+
+const src = url("/videos/identity-01.mp4");
+const poster = url("/videos/identity-01.jpg");
+---
+
+<div class="wanderer" aria-hidden="true" data-wanderer>
+    <div class="wanderer-path">
+        <video class="wanderer-bird" src={src} poster={poster} muted loop playsinline preload="metadata" disablepictureinpicture></video>
+    </div>
+</div>
+
+<style>
+    .wanderer {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .wanderer-path {
+        position: absolute;
+        top: 0;
+        left: 0;
+        animation: wander-route 85s ease-in-out infinite;
+        will-change: transform;
+    }
+
+    .wanderer-bird {
+        display: block;
+        width: clamp(9rem, 17vmin, 15rem);
+        aspect-ratio: 1;
+        object-fit: cover;
+        mix-blend-mode: difference;
+        opacity: 0.5;
+        filter: grayscale(1) contrast(1.1);
+        -webkit-mask-image: radial-gradient(closest-side, black 45%, transparent 96%);
+        mask-image: radial-gradient(closest-side, black 45%, transparent 96%);
+        animation: wander-bob 5.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes wander-route {
+        0% {
+            transform: translate(108vw, 14vh);
+        }
+        22% {
+            transform: translate(72vw, 26vh);
+        }
+        45% {
+            transform: translate(38vw, 10vh);
+        }
+        68% {
+            transform: translate(12vw, 30vh);
+        }
+        88% {
+            transform: translate(45vw, 55vh);
+        }
+        100% {
+            transform: translate(108vw, 14vh);
+        }
+    }
+
+    @keyframes wander-bob {
+        from {
+            transform: translateY(-6%) rotate(-3deg) scale(0.96);
+        }
+        to {
+            transform: translateY(6%) rotate(3deg) scale(1.04);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .wanderer-bird {
+            width: 7.5rem;
+            opacity: 0.38;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .wanderer-path {
+            animation: none;
+            transform: translate(80vw, 12vh);
+        }
+
+        .wanderer-bird {
+            animation: none;
+        }
+    }
+</style>
+
+<script>
+const wanderers = document.querySelectorAll<HTMLElement>("[data-wanderer]");
+const seen = new WeakSet<HTMLElement>();
+
+function arm(root: HTMLElement) {
+	if (seen.has(root)) return;
+	seen.add(root);
+
+	const reels = Array.from(
+		root.querySelectorAll<HTMLVideoElement>("video"),
+	);
+
+	const play = () => {
+		if (!document.hidden) {
+			reels.forEach((r) => r.play().catch(() => {}));
+		}
+	};
+	const stop = () => reels.forEach((r) => r.pause());
+
+	document.addEventListener("visibilitychange", () => {
+		if (document.hidden) stop();
+		else play();
+	});
+
+	play();
+}
+
+function boot() {
+	wanderers.forEach(arm);
+}
+
+boot();
+</script>

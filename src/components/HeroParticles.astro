@@ -1,5 +1,5 @@
 ---
-// Three.js-style particle network — zero dependencies, pure canvas.
+
 ---
 
 <div class="hero-particles" aria-hidden="true">
@@ -22,7 +22,6 @@
         height: 100%;
     }
 
-    /* lift the real content above the field (siblings live in HomeHero) */
     .hero-particles ~ :global(*) {
         position: relative;
         z-index: 1;
@@ -30,109 +29,275 @@
 </style>
 
 <script>
-const wrap = document.querySelector(".hero-particles");
-const canvas = wrap ? wrap.querySelector("canvas") : null;
+const SELECTOR = ".hero-particles";
+const initialized = new WeakSet<HTMLCanvasElement>();
+const BREATH = 9;
 
-if (
-	wrap &&
-	canvas &&
-	!window.matchMedia("(prefers-reduced-motion: reduce)").matches
-) {
+interface Field {
+	g: CanvasRenderingContext2D;
+	canvas: HTMLCanvasElement;
+	w: number;
+	h: number;
+	count: number;
+	px: Float32Array;
+	py: Float32Array;
+	life: Float32Array;
+	tone: Float32Array;
+	scale: number;
+}
+
+function fit(field: Field) {
+	const wrap = field.canvas.parentElement;
+	if (!wrap) return;
+	const rect = wrap.getBoundingClientRect();
+	const dpr = Math.min(window.devicePixelRatio || 1, 1.6);
+	field.w = Math.max(1, Math.floor(rect.width));
+	field.h = Math.max(1, Math.floor(rect.height));
+	field.canvas.width = Math.floor(field.w * dpr);
+	field.canvas.height = Math.floor(field.h * dpr);
+	field.g.setTransform(dpr, 0, 0, dpr, 0, 0);
+	field.scale = 1.55 / Math.max(field.w, field.h);
+	field.count = Math.max(320, Math.min(1150, Math.round((field.w * field.h) / 2400)));
+}
+
+function makeField(canvas: HTMLCanvasElement): Field | null {
 	const ctx = canvas.getContext("2d");
-	let W = 0;
-	let H = 0;
-
-	const resize = () => {
-		const rect = wrap.getBoundingClientRect();
-		const dpr = Math.min(window.devicePixelRatio || 1, 2);
-		W = rect.width;
-		H = rect.height;
-		canvas.width = Math.floor(W * dpr);
-		canvas.height = Math.floor(H * dpr);
-		if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+	if (!ctx) return null;
+	const field: Field = {
+		g: ctx,
+		canvas,
+		w: 1,
+		h: 1,
+		count: 0,
+		px: new Float32Array(0),
+		py: new Float32Array(0),
+		life: new Float32Array(0),
+		tone: new Float32Array(0),
+		scale: 0.001,
 	};
-	resize();
-	window.addEventListener("resize", resize);
+	fit(field);
+	reseed(field);
+	return field;
+}
 
-	const COUNT = Math.min(80, Math.floor((window.innerWidth || 900) / 14));
-	const pts = Array.from({ length: COUNT }, () => ({
-		x: Math.random(),
-		y: Math.random(),
-		vx: (Math.random() - 0.5) * 0.0009,
-		vy: (Math.random() - 0.5) * 0.0009,
-		r: Math.random() * 1.3 + 0.5,
-	}));
+function reseed(field: Field) {
+	const n = field.count;
+	field.px = new Float32Array(n);
+	field.py = new Float32Array(n);
+	field.life = new Float32Array(n);
+	field.tone = new Float32Array(n);
+	for (let i = 0; i < n; i++) {
+		field.px[i] = Math.random() * field.w;
+		field.py[i] = Math.random() * field.h;
+		field.life[i] = 0.4 + Math.random() * 0.95;
+		field.tone[i] = Math.random() < 0.06 ? 1 : 0.25 + Math.random() * 0.5;
+	}
+}
 
-	let mx = -9999;
-	let my = -9999;
-	window.addEventListener("pointermove", (event) => {
-		const rect = canvas.getBoundingClientRect();
-		mx = event.clientX - rect.left;
-		my = event.clientY - rect.top;
+function respawn(field: Field, i: number, cx: number, cy: number) {
+	const a = Math.random() * Math.PI * 2;
+	const r = Math.hypot(field.w, field.h) * (0.38 + Math.random() * 0.34);
+	field.px[i] = cx + Math.cos(a) * r;
+	field.py[i] = cy + Math.sin(a) * r;
+	field.life[i] = 0.65 + Math.random() * 0.7;
+}
+
+function flowAngle(x: number, y: number, t: number, s: number) {
+	return (
+		Math.sin(x * s * 2.3 + t * 0.3) +
+		Math.sin(y * s * 1.9 - t * 0.26) +
+		Math.sin((x + y) * s * 1.15 + t * 0.18) +
+		Math.cos((x - y) * s * 0.85 - t * 0.12)
+	) * 1.35;
+}
+
+function step(
+	field: Field,
+	t: number,
+	mx: number,
+	my: number,
+	lensR: number,
+	rings: { r: number; a: number }[],
+) {
+	const g = field.g;
+	const W = field.w;
+	const H = field.h;
+	const phase = (((t % BREATH) / BREATH) + 1) % 1;
+	const strength = Math.pow(Math.sin(Math.PI * phase), 2.4);
+	const cx = W * (0.62 + 0.11 * Math.sin(t * 0.21));
+	const cy = H * (0.44 + 0.13 * Math.cos(t * 0.17));
+	const core = Math.min(W, H) * 0.055;
+	const vm = Math.min(W, H) * 0.018 * (0.35 + strength);
+	const swirl = 0.9 + strength * 0.9;
+
+	if (phase < 0.12 && rings.length === 0) {
+		rings.push({ r: core * 1.4, a: 0.11 });
+	}
+
+	g.globalCompositeOperation = "destination-out";
+	g.fillStyle = "rgba(0,0,0,0.055)";
+	g.fillRect(0, 0, W, H);
+	g.globalCompositeOperation = "source-over";
+
+	for (const ring of rings) {
+		g.globalAlpha = ring.a;
+		g.strokeStyle = "#fff";
+		g.lineWidth = 1;
+		g.beginPath();
+		g.arc(cx, cy, ring.r, 0, Math.PI * 2);
+		g.stroke();
+		ring.r += Math.min(W, H) * 0.007;
+		ring.a *= 0.972;
+	}
+	for (let i = rings.length - 1; i >= 0; i--) {
+		if (rings[i].a <= 0.008 || rings[i].r > Math.max(W, H)) rings.splice(i, 1);
+	}
+
+	const n = field.count;
+	for (let i = 0; i < n; i++) {
+		let x = field.px[i];
+		let y = field.py[i];
+		const ox = x;
+		const oy = y;
+
+		const a = flowAngle(x, y, t, field.scale);
+		let vx = Math.cos(a) * 0.55;
+		let vy = Math.sin(a) * 0.55;
+
+		const dxw = cx - x;
+		const dyw = cy - y;
+		const dw = Math.hypot(dxw, dyw) + 1e-4;
+		const f = vm * (core / (dw + core));
+		vx += (dxw / dw) * f + (-dyw / dw) * f * swirl;
+		vy += (dyw / dw) * f + (dxw / dw) * f * swirl;
+
+		const dxm = x - mx;
+		const dym = y - my;
+		const dm = Math.hypot(dxm, dym);
+		if (dm < lensR && dm > 1) {
+			const m = (1 - dm / lensR) * 1.5;
+			vx += (-dym / dm) * m + (dxm / dm) * m * 0.45;
+			vy += (dxm / dm) * m + (dym / dm) * m * 0.45;
+		}
+
+		x += vx;
+		y += vy;
+		field.px[i] = x;
+		field.py[i] = y;
+		field.life[i] -= 0.0022 * (1 + strength * 1.6);
+
+		const speed = Math.hypot(x - ox, y - oy);
+		const alpha =
+			Math.min(0.05 + speed * 0.075, 0.42) *
+			Math.min(1, field.life[i]) *
+			field.tone[i];
+		if (alpha > 0.01) {
+			g.globalAlpha = alpha;
+			g.strokeStyle = "#fff";
+			g.lineWidth = field.tone[i] > 0.9 ? 1.15 : 0.62;
+			g.beginPath();
+			g.moveTo(ox, oy);
+			g.lineTo(x, y);
+			g.stroke();
+		}
+
+		if (
+			field.life[i] <= 0 ||
+			dw < core ||
+			x < -30 ||
+			x > W + 30 ||
+			y < -30 ||
+			y > H + 30
+		) {
+			respawn(field, i, cx, cy);
+		}
+	}
+	g.globalAlpha = 1;
+}
+
+function startLive(canvas: HTMLCanvasElement) {
+	const field = makeField(canvas);
+	if (!field) return;
+
+	let mx = -1e4;
+	let my = -1e4;
+	const lensR = () => Math.min(field.w, field.h) * 0.17;
+
+	const onMove = (e: PointerEvent) => {
+		const r = canvas.getBoundingClientRect();
+		mx = e.clientX - r.left;
+		my = e.clientY - r.top;
+	};
+	window.addEventListener("pointermove", onMove, { passive: true });
+
+	let visible = true;
+	const io = new IntersectionObserver((entries) => {
+		visible = entries[0]?.isIntersecting ?? true;
 	});
+	io.observe(canvas);
 
-	const LINK_DIST = 110;
-	const MOUSE_RADIUS = 170;
+	let roTimer: number | undefined;
+	const ro = new ResizeObserver(() => {
+		window.clearTimeout(roTimer);
+		roTimer = window.setTimeout(() => {
+			fit(field);
+			reseed(field);
+		}, 160);
+	});
+	if (canvas.parentElement) ro.observe(canvas.parentElement);
 
-	const frame = () => {
-		requestAnimationFrame(frame);
-		if (!ctx || document.hidden) return;
+	const rings: { r: number; a: number }[] = [];
+	let t = Math.random() * 90;
+	let last = performance.now();
+	let raf = 0;
 
-		ctx.clearRect(0, 0, W, H);
-
-		for (const p of pts) {
-			p.x += p.vx;
-			p.y += p.vy;
-
-			const dx = mx - p.x * W;
-			const dy = my - p.y * H;
-			const d = Math.hypot(dx, dy);
-			if (d < MOUSE_RADIUS && d > 1) {
-				p.x += (dx / d) * 0.00045;
-				p.y += (dy / d) * 0.00045;
-			}
-
-			if (p.x < -0.02) p.x = 1.02;
-			else if (p.x > 1.02) p.x = -0.02;
-			if (p.y < -0.02) p.y = 1.02;
-			else if (p.y > 1.02) p.y = -0.02;
-
-			ctx.globalAlpha = 0.55;
-			ctx.fillStyle = "#fff";
-			ctx.beginPath();
-			ctx.arc(p.x * W, p.y * H, p.r, 0, Math.PI * 2);
-			ctx.fill();
+	const loop = (now: number) => {
+		raf = requestAnimationFrame(loop);
+		if (!canvas.isConnected) {
+			cancelAnimationFrame(raf);
+			window.removeEventListener("pointermove", onMove);
+			io.disconnect();
+			ro.disconnect();
+			return;
 		}
-
-		for (let i = 0; i < COUNT; i++) {
-			for (let j = i + 1; j < COUNT; j++) {
-				const ax = pts[i].x * W;
-				const ay = pts[i].y * H;
-				const bx = pts[j].x * W;
-				const by = pts[j].y * H;
-				const d = Math.hypot(ax - bx, ay - by);
-				if (d < LINK_DIST) {
-					ctx.globalAlpha = (1 - d / LINK_DIST) * 0.18;
-					ctx.strokeStyle = "#fff";
-					ctx.lineWidth = 0.6;
-					ctx.beginPath();
-					ctx.moveTo(ax, ay);
-					ctx.lineTo(bx, by);
-					ctx.stroke();
-				}
-			}
-		}
-
-		if (mx > -1 && mx < W + 64 && my > -1 && my < H + 64) {
-			ctx.globalAlpha = 0.06;
-			ctx.fillStyle = "#fff";
-			ctx.beginPath();
-			ctx.arc(mx, my, 64, 0, Math.PI * 2);
-			ctx.fill();
-		}
-
-		ctx.globalAlpha = 1;
+		t += Math.min(Math.max((now - last) / 1000, 0), 0.05);
+		last = now;
+		if (document.hidden || !visible) return;
+		step(field, t, mx, my, lensR(), rings);
 	};
-	requestAnimationFrame(frame);
+	raf = requestAnimationFrame(loop);
+}
+
+function renderStill(canvas: HTMLCanvasElement) {
+	const field = makeField(canvas);
+	if (!field) return;
+	const rings: { r: number; a: number }[] = [];
+	const lensR = Math.min(field.w, field.h) * 0.17;
+	let t = 40;
+	for (let i = 0; i < 220; i++) {
+		t += 1 / 30;
+		step(field, t, -1e4, -1e4, lensR, rings);
+	}
+}
+
+function boot() {
+	document.querySelectorAll<HTMLCanvasElement>(`${SELECTOR} canvas`).forEach((canvas) => {
+		if (initialized.has(canvas)) return;
+		initialized.add(canvas);
+		if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+			renderStill(canvas);
+		} else {
+			startLive(canvas);
+		}
+	});
+}
+
+boot();
+if (window.swup?.hooks) {
+	window.swup.hooks.on("page:view", () => setTimeout(boot, 60));
+} else {
+	document.addEventListener("swup:enable", () => {
+		window.swup?.hooks?.on("page:view", () => setTimeout(boot, 60));
+	});
 }
 </script>
